@@ -25,6 +25,7 @@
         .card-body { font-size: 14px; color: #9ca3af; line-height: 1.6; }
         .worker-assignment-box { background: #1f2937; border-radius: 8px; padding: 12px; margin-top: 5px; border: 1px solid #374151; }
         .call-btn { background: #10b981; color: white; padding: 8px; border-radius: 5px; text-decoration: none; display: block; text-align: center; font-weight: bold; margin-top: 8px; cursor: pointer; border: none; width: 100%; }
+        .rebook-btn { background: #8b5cf6; color: white; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; margin-top: 8px; width: 100%; }
         select { background: #111827; color: white; padding: 5px; border-radius: 4px; border: 1px solid #374151; }
     </style>
 </head>
@@ -86,6 +87,12 @@
                         const card = document.createElement('div');
                         card.className = 'history-card';
                         
+                        // Warranty Logic (10 Days Calculation)
+                        const bookingDate = new Date(b.timestamp);
+                        const today = new Date();
+                        const diffTime = Math.abs(today - bookingDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
                         let workerMarkup = '';
                         if (b.status === "Accepted" && b.acceptedBy) {
                             workerMarkup = `
@@ -99,23 +106,29 @@
                                 <div class="worker-assignment-box">
                                     <h4>Rate Your Experience</h4>
                                     ${b.rating ? `<p>You rated: ⭐ ${b.rating}</p>` : `
-                                        <select id="rating-${b.bookingId}">
+                                        <select id="rating-${child.key}">
                                             <option value="5">5 Stars</option><option value="4">4 Stars</option>
                                             <option value="3">3 Stars</option><option value="2">2 Stars</option>
                                             <option value="1">1 Star</option>
                                         </select>
-                                        <button onclick="submitRating('${b.bookingId}', '${b.acceptedBy}')" class="call-btn">Submit Rating</button>
+                                        <button onclick="submitRating('${child.key}', '${b.acceptedBy}')" class="call-btn">Submit Rating</button>
                                     `}
+                                    ${(diffDays <= 10 && b.acceptedBy) ? `
+                                        <div style="margin-top:10px;">
+                                            <a href="tel:${b.acceptedBy}" class="rebook-btn" style="background:#8b5cf6;">📞 Call Worker (Free Rebooking)</a>
+                                        </div>
+                                    ` : ''}
                                 </div>`;
                         }
 
                         card.innerHTML = `
                             <div class="card-header">
-                                <span class="service-name">${b.service}</span>
+                                <span class="service-name">${b.services || b.service}</span>
                                 <span class="status-badge status-${b.status.toLowerCase()}">${b.status}</span>
                             </div>
                             <div class="card-body">
                                 <p><strong>Address:</strong> ${b.address}</p>
+                                <p><small>Date: ${b.timestamp}</small></p>
                             </div>
                             ${workerMarkup}
                         `;
@@ -128,8 +141,9 @@
 
         function submitRating(bookingId, workerPhone) {
             const rating = document.getElementById('rating-' + bookingId).value;
-            database.ref('bookings/' + bookingId).update({ rating: rating });
-            database.ref('workers/' + workerPhone + '/ratings/' + bookingId).set({ rating: rating });
+            // Agar rating submit karte waqt workerPhone undefined hai, to error se bachne ke liye logic
+            const updateData = { rating: rating };
+            database.ref('bookings/' + bookingId).update(updateData);
             alert("Thank you for your rating!");
         }
 
