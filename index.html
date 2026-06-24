@@ -131,6 +131,22 @@
     }
 }
 
+/* Mobile Responsive Fixes */
+@media screen and (max-width: 600px) {
+    header { padding: 10px 5%; flex-direction: column; gap: 10px; }
+    .hero-banner { height: auto; min-height: 400px; padding: 20px; }
+    .search-container { width: 95%; margin: 20px auto; }
+    .services-quick-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 10px;
+    }
+    .quick-box img { height: 50px; }
+    .quick-box span { font-size: 11px; }
+    .trending-grid { grid-template-columns: 1fr; }
+    .promo-banner-card { padding: 20px; text-align: center; }
+}
+
     </style>
 </head>
 <body>
