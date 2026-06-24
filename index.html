@@ -100,14 +100,40 @@
         .work-submit { background: #6d28d9; color: white; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2); }
         .toggle-form-text { display: block; text-align: center; margin-top: 15px; font-size: 12px; color: #64748b; cursor: pointer; }
 
-        @media (max-width: 768px) {
-            .hero-banner { height: 400px; }
-            .hero-banner h2 { font-size: 28px; }
-            .services-quick-grid { margin-top: -30px; gap: 10px; }
-            .quick-box { width: 100px; height: 90px; }
-            .promo-banner-card { flex-direction: column; text-align: center; gap: 10px; }
-            .trending-grid { grid-template-columns: 1fr; }
-        }
+       @media (max-width: 768px) {
+    /* Header ko fix karo */
+    header { padding: 15px 4%; position: relative; background: #fff; }
+    
+    /* Hero section ka size kam karo */
+    .hero-banner { height: auto; padding: 40px 20px; }
+    
+    /* Search bar ko adjust karo */
+    .search-container { margin-top: 10px; margin-bottom: 20px; }
+    
+    /* Grid layout sahi karo - 2 columns per row */
+    .services-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+        margin-top: 0; /* Hero banner ke upar overlap nahi karega */
+    }
+
+    .quick-box {
+        padding: 10px;
+        height: auto;
+    }
+
+    .quick-box img {
+        height: 80px; /* Image height kam kar di mobile ke liye */
+        margin-bottom: 5px;
+    }
+
+    /* Promo aur features ko adjust karo */
+    .promo-banner-card { padding: 20px; margin: 20px 10px; }
+    .why-choose-us { grid-template-columns: 1fr; margin: 20px 10px; }
+}
+
     </style>
 </head>
 <body>
