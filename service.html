@@ -5,67 +5,220 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Domvex | Service Selection</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
-        body { background: #fdfdfd; color: #1e2937; padding-bottom: 100px; }
-        
-        /* Header */
-        .header-bar { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 16px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid #f1f5f9; }
-        .back-btn { text-decoration: none; color: #1e2937; font-weight: 600; font-size: 14px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #ffffff; color: #0f172a; padding-bottom: 110px; }
 
-        /* Banner */
-        .service-banner { height: 100px; background: linear-gradient(135deg, #6d28d9, #8b5cf6); color: white; display: flex; align-items: center; padding: 0 20px; font-size: 18px; font-weight: 700; box-shadow: 0 10px 20px -10px #8b5cf6; }
-        
-        /* Premium Card Design with Animations */
-        .service-card { 
-            background: white; padding: 20px; 
-            margin: 12px 16px;
-            display: flex; justify-content: space-between; align-items: center; 
-            border-radius: 16px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Header */
+        .header-bar {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .service-card:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        .service-info { flex: 1; padding-right: 20px; }
-        .service-info h3 { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
-        .price-tag { font-size: 15px; font-weight: 600; color: #6d28d9; }
-        
-        .img-container { position: relative; width: 85px; }
-        .service-img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-        
-        .add-btn { 
-            position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80%;
-            background: #ffffff; color: #6d28d9; border: 1px solid #6d28d9; 
-            padding: 6px 0; border-radius: 20px; font-weight: 700; font-size: 12px; 
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .back-btn {
+            text-decoration: none;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 20px;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: #f8fafc;
+            flex-shrink: 0;
         }
-        /* Animation when added */
-        .add-btn.added { background: #10b981; color: white; border: none; transform: translateX(-50%) scale(1.05); }
-        
+        .back-btn:active { background: #f1f5f9; }
+        #serviceTitle {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+        }
+
+        /* BIG HERO IMAGE BANNER (jaisa AC Repair & Service screenshot me hai) */
+        .hero-image-wrap {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .category-header {
+            padding: 20px 18px 18px 18px;
+            border-bottom: 8px solid #f8fafc;
+        }
+        .category-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .rating-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #334155;
+            font-weight: 600;
+        }
+        .rating-line .star { color: #0f172a; font-size: 14px; }
+        .rating-line .bookings-count { color: #64748b; font-weight: 500; }
+
+        /* Section label */
+        .section-label {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            padding: 20px 18px 12px 18px;
+        }
+
+        /* Premium List-Style Service Row (Urban Company jaisa) */
+        .service-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #ffffff;
+            transition: background 0.15s ease;
+        }
+        .service-card:active { background: #fafafa; }
+
+        .service-info { flex: 1; padding-right: 18px; min-width: 0; }
+        .service-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            line-height: 1.35;
+        }
+        .price-tag {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .view-details-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6d28d9;
+            cursor: pointer;
+        }
+
+        .img-container {
+            position: relative;
+            width: 96px;
+            flex-shrink: 0;
+        }
+        .service-img {
+            width: 96px;
+            height: 96px;
+            border-radius: 14px;
+            object-fit: cover;
+            background: #f8fafc;
+            display: block;
+        }
+
+        .add-btn {
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 82%;
+            background: #ffffff;
+            color: #6d28d9;
+            border: 1.5px solid #6d28d9;
+            padding: 7px 0;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(109, 40, 217, 0.15);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .add-btn.added {
+            background: #6d28d9;
+            color: white;
+            border: none;
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.35);
+        }
+
         /* Floating Cart Button */
-        #cartBtn { 
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: linear-gradient(90deg, #6d28d9, #4f46e5); color: white; padding: 18px; border-radius: 12px; 
-            text-align: center; font-weight: 700; display: none; cursor: pointer;
-            box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.5);
-            animation: slideUp 0.4s ease;
+        #cartBtn {
+            position: fixed;
+            bottom: 18px;
+            left: 16px;
+            right: 16px;
+            background: linear-gradient(90deg, #6d28d9, #4f46e5);
+            color: white;
+            padding: 17px;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            display: none;
+            cursor: pointer;
+            box-shadow: 0 12px 24px -6px rgba(109, 40, 217, 0.55);
+            animation: slideUp 0.35s ease;
         }
-        @keyframes slideUp { from { transform: translateY(100px); } to { transform: translateY(0); } }
-        
-        .coming-soon { text-align: center; padding: 100px 20px; color: #64748b; }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 100px 24px;
+            color: #64748b;
+        }
+        .coming-soon h2 { font-size: 20px; color: #0f172a; margin-bottom: 10px; }
+        .coming-soon p { font-size: 14px; }
+
+        /* Mobile fine-tune */
+        @media screen and (max-width: 420px) {
+            .hero-image-wrap { height: 170px; }
+            .category-header h1 { font-size: 22px; }
+            .service-info h3 { font-size: 15px; }
+            .img-container { width: 84px; }
+            .service-img { width: 84px; height: 84px; border-radius: 12px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="header-bar">
-    <a href="index.html" class="back-btn">← Back</a>
-    <h2 id="serviceTitle" style="margin-left: 20px; font-size: 18px;">Services</h2>
+    <a href="index.html" class="back-btn">←</a>
+    <h2 id="serviceTitle">Services</h2>
 </div>
 
-<div class="service-banner"><h1 id="bannerName" style="font-size: 20px;">Loading...</h1></div>
+<div class="hero-image-wrap">
+    <img id="heroImg" class="hero-image" src="" onerror="this.src='https://via.placeholder.com/600x300'">
+</div>
 
-<div id="serviceContainer" style="margin-top: 10px;"></div>
+<div class="category-header">
+    <h1 id="bannerName">Loading...</h1>
+    <div class="rating-line">
+        <span class="star">★</span>
+        <span id="ratingText"></span>
+    </div>
+</div>
+
+<div class="section-label" id="sectionLabel">All Services</div>
+<div id="serviceContainer"></div>
 
 <div id="cartBtn" onclick="goToBooking()">View Booking</div>
 
@@ -98,6 +251,28 @@
         "Physiotherapist": "coming-soon"
     };
 
+    /* Har category ka hero image (existing filenames se) + rating/bookings */
+    const categoryMeta = {
+        "Electrician":   { img: "geyser.jpg",       rating: "4.78", bookings: "5.1 k bookings" },
+        "Plumber":       { img: "tap.jpg",          rating: "4.75", bookings: "3.8 k bookings" },
+        "AC Technician": { img: "ac_deep.jpg",      rating: "4.77", bookings: "13.6 k bookings" },
+        "Cleaning":      { img: "kitchen_clean.jpg",rating: "4.72", bookings: "6.2 k bookings" },
+        "Painting":      { img: "room_paint.jpg",   rating: "4.69", bookings: "2.1 k bookings" },
+        "Beauty/Spa":    { img: "hairspa.jpg",      rating: "4.81", bookings: "4.4 k bookings" }
+    };
+
+    const meta = categoryMeta[category];
+    const heroWrap = document.querySelector('.hero-image-wrap');
+    const catHeader = document.querySelector('.category-header');
+
+    if (meta) {
+        document.getElementById('heroImg').src = meta.img;
+        document.getElementById('ratingText').innerHTML = `${meta.rating} <span class="bookings-count">(${meta.bookings})</span>`;
+    } else {
+        heroWrap.style.display = 'none';
+        catHeader.style.display = 'none';
+    }
+
     let cart = [];
 
     function toggleService(btn, name, price) {
@@ -111,7 +286,7 @@
             btn.innerText = "Added";
             btn.classList.add('added');
         }
-        
+
         const cartBtn = document.getElementById('cartBtn');
         if (cart.length > 0) {
             cartBtn.style.display = 'block';
@@ -127,9 +302,11 @@
     }
 
     const container = document.getElementById('serviceContainer');
+    const sectionLabel = document.getElementById('sectionLabel');
     const data = services[category];
 
     if (data === "coming-soon") {
+        sectionLabel.style.display = 'none';
         container.innerHTML = `<div class="coming-soon"><h2>🚀 Services Coming Soon!</h2><p>We are onboarding experts for ${category}.</p></div>`;
     } else if (data) {
         data.forEach(s => {
@@ -138,6 +315,7 @@
                     <div class="service-info">
                         <h3>${s.name}</h3>
                         <span class="price-tag">${s.price}</span>
+                        <span class="view-details-link">View details</span>
                     </div>
                     <div class="img-container">
                         <img src="${s.img}" class="service-img" onerror="this.src='https://via.placeholder.com/100'">

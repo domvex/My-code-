@@ -306,6 +306,85 @@
             }
         }
         /* ===== END MOBILE POLISH ===== */
+
+        /* ===== HEADER BUTTONS - PREMIUM MOBILE SIZE ===== */
+        @media screen and (max-width: 768px) {
+            #navAuthButtons.nav-buttons {
+                gap: 8px !important;
+            }
+            #navAuthButtons .nav-link-btn {
+                font-size: 12.5px !important;
+                padding: 7px 12px !important;
+                font-weight: 600 !important;
+            }
+            #navAuthButtons .nav-link-btn.accent {
+                padding: 7px 14px !important;
+                border-radius: 8px !important;
+                box-shadow: 0 3px 10px rgba(109, 40, 217, 0.25) !important;
+            }
+        }
+
+        /* ===== EXTRA-SMALL PHONES: aur bhi tight ===== */
+        @media screen and (max-width: 380px) {
+            #navAuthButtons .nav-link-btn {
+                font-size: 11.5px !important;
+                padding: 6px 10px !important;
+            }
+            #navAuthButtons .nav-link-btn.accent {
+                padding: 6px 11px !important;
+            }
+            .logo-img { height: 34px !important; }
+        }
+
+        /* ===== FORM ELEMENTS: refined premium touch mobile pe ===== */
+        @media screen and (max-width: 768px) {
+            .modal-box h3 { letter-spacing: -0.2px; }
+
+            .form-group input,
+            .form-group select,
+            .phone-input-group input {
+                border-radius: 10px !important;
+            }
+            .form-group input::placeholder { color: #b0bac6 !important; }
+
+            .form-section-title {
+                letter-spacing: 0.2px;
+                color: #334155 !important;
+            }
+
+            .file-dropzone {
+                border-radius: 10px !important;
+            }
+
+            .submit-btn {
+                border-radius: 10px !important;
+                letter-spacing: 0.2px;
+            }
+
+            .toggle-form-text {
+                font-size: 12.5px !important;
+                margin-top: 12px !important;
+            }
+        }
+        /* ===== END HEADER + FORM MOBILE REFINEMENT ===== */
+
+.pass-field-wrap { display: flex; align-items: stretch; }
+        .pass-field-wrap input {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+        .pass-toggle-btn {
+            border: 1px solid #cbd5e1;
+            border-left: none;
+            background: #f8fafc;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            padding: 0 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
         
     </style>
 </head>
@@ -331,9 +410,9 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <a href="customer_dashboard.html">Bookings</a>
-        <a href="#">Wallet</a>
+        <a href="wallet.html">Wallet</a>
         <a href="javascript:void(0)" onclick="alert('Helpline 1: +91 82790 82569 \nHelpline 2: +91 92562 90755 \nEmail: domvexindia@gmail.com')">Help & Support</a>
-        <a href="#">Notification</a>
+        <a href="notification.html">Notification</a>
         <button onclick="logout()">Logout</button>
     </div>
 
@@ -486,8 +565,13 @@
                             <input type="tel" id="custLogPhone" placeholder="Enter 10 digit number" required>
                         </div>
                     </div>
-                    <div class="form-group"><label>Password</label><input type="password" id="custLogPass" placeholder="Enter password" required></div>
-                    <button type="submit" class="submit-btn cust-submit">Secure Login</button>
+                 <div class="form-group">
+                        <label>Password</label>
+                        <div class="pass-field-wrap">
+                            <input type="password" id="custLogPass" placeholder="Enter password" required>
+                            <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custLogPass', this)">👁️</button>
+                        
+                 <button type="submit" class="submit-btn cust-submit">Secure Login</button>
                     <span class="toggle-form-text" onclick="toggleCustForm(true)">New to Domvex? Create Customer Account</span>
                 </form>
             </div>
@@ -502,7 +586,11 @@
                             <input type="tel" id="custSignPhone" placeholder="Enter 10 digit number" required>
                         </div>
                     </div>
-                    <div class="form-group"><label>Password</label><input type="password" id="custSignPass" placeholder="Enter password" required></div>
+                   <div class="form-group">
+                        <label>Password</label>
+                        <div class="pass-field-wrap">
+                            <input type="password" id="custSignPass" placeholder="Enter password" required>
+                            <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custSignPass', this)">👁️</button>
                     <button type="submit" class="submit-btn cust-submit">Register Account</button>
                     <span class="toggle-form-text" onclick="toggleCustForm(false)">Already have an account? Sign In</span>
                 </form>
@@ -653,7 +741,9 @@
                 if (s.exists() && s.val().password === pass) {
                     localStorage.setItem('customerName', s.val().name);
                     localStorage.setItem('customerPhone', phone);
-                    window.location.href = 'service.html';
+                   closeModal('customerModal');
+                    document.getElementById('navAuthButtons').style.display = 'none';
+                    document.getElementById('hambBtn').style.display = 'flex';
                 } else { alert('Invalid credentials!'); }
             });
         };
@@ -689,6 +779,17 @@
         function togglePass() {
             const x = document.getElementById("workerPassInput");
             x.type = (x.type === "password") ? "text" : "password";
+        }
+
+      function toggleCustPass(id, btn) {
+            const x = document.getElementById(id);
+            if (x.type === "password") {
+                x.type = "text";
+                btn.innerText = "🙈";
+            } else {
+                x.type = "password";
+                btn.innerText = "👁️";
+            }
         }
 
         async function uploadToImgBB(file) {

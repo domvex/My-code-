@@ -1,34 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: #0f172a; color: white; padding: 15px; }
-        
-        /* Header section jaisa tumne dikhaya */
-        .header-section { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; }
-        .user-info { font-size: 16px; font-weight: bold; color: #38bdf8; line-height: 1.2; }
-        
-        .nav-btns { display: flex; flex-direction: column; gap: 6px; }
-        .btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; text-align: center; }
-        .btn-book { background: #22c55e; color: white; }
-        .btn-logout { background: #f97316; color: white; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domvex | My Bookings</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system, 'Segoe UI', sans-serif; }
+body { background:#0f172a; color:#e2e8f0; padding:16px; padding-bottom:60px; }
 
-        h2 { font-size: 15px; margin-bottom: 15px; border-left: 3px solid #38bdf8; padding-left: 8px; }
-        
-        .card { background: #1e293b; padding: 14px; border-radius: 10px; margin-bottom: 12px; }
-        .status { float: right; padding: 3px 8px; border-radius: 5px; font-size: 9px; font-weight: bold; }
-        
-        .pending { background: #d97706; }
-        .completed { background: #059669; }
-        .accepted { background: #2563eb; }
-        
-        h3 { font-size: 13px; margin-bottom: 4px; }
-        p { font-size: 11px; color: #94a3b8; }
-    </style>
+.header-section { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; }
+.user-info { font-size:15px; font-weight:800; color:#38bdf8; letter-spacing:0.3px; }
+.user-info span { color:#f1f5f9; }
+.nav-btns { display:flex; flex-direction:column; gap:8px; }
+.btn { padding:9px 16px; border-radius:8px; border:none; cursor:pointer; font-size:12px; font-weight:700; text-align:center; }
+.btn-book { background:linear-gradient(135deg,#22c55e,#16a34a); color:white; }
+.btn-logout { background:linear-gradient(135deg,#f97316,#ea580c); color:white; }
+
+h2.section-title { font-size:15px; margin-bottom:14px; padding-left:10px; border-left:3px solid #38bdf8; color:#f1f5f9; }
+
+.card { background:#1e293b; border:1px solid #334155; padding:18px; border-radius:14px; margin-bottom:16px; }
+.card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.card-top h3 { font-size:15px; color:#f1f5f9; font-weight:700; }
+.status-badge { padding:4px 10px; border-radius:20px; font-size:10px; font-weight:800; letter-spacing:0.4px; text-transform:uppercase; }
+.st-pending { background:rgba(217,119,6,0.2); color:#fbbf24; }
+.st-accepted { background:rgba(37,99,235,0.2); color:#60a5fa; }
+.st-completed { background:rgba(5,150,105,0.2); color:#34d399; }
+.st-cancelled { background:rgba(220,38,38,0.2); color:#f87171; }
+
+.meta-line { font-size:12px; color:#94a3b8; margin-bottom:4px; }
+.price-line { font-size:15px; font-weight:800; color:#f1f5f9; margin-top:8px; }
+
+.worker-box { display:flex; align-items:center; gap:12px; background:#111827; border-radius:12px; padding:12px; margin-top:14px; }
+.worker-box img { width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid #38bdf8; }
+.worker-box .w-name { font-size:14px; font-weight:700; color:#f1f5f9; }
+.worker-box .w-rating { font-size:11px; color:#fbbf24; margin-top:2px; }
+.call-btn { margin-left:auto; background:#22c55e; color:white; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:18px; flex-shrink:0; }
+
+.eta-box { margin-top:12px; background:linear-gradient(135deg,#1e3a8a,#312e81); border-radius:12px; padding:12px 14px; font-size:13px; font-weight:700; color:#e0e7ff; }
+.map-box { height:180px; border-radius:12px; margin-top:10px; overflow:hidden; border:1px solid #334155; }
+
+.action-row { display:flex; gap:10px; margin-top:14px; }
+.cancel-btn { flex:1; background:transparent; border:1.5px solid #f87171; color:#f87171; padding:10px; border-radius:8px; font-weight:700; font-size:12.5px; cursor:pointer; }
+
+.warranty-box { margin-top:12px; background:rgba(5,150,105,0.12); border:1px solid #059669; border-radius:12px; padding:12px 14px; font-size:12px; color:#34d399; font-weight:600; }
+
+.rate-box { margin-top:14px; background:#111827; border-radius:12px; padding:14px; }
+.rate-box p { font-size:12.5px; color:#cbd5e1; margin-bottom:10px; font-weight:600; }
+.stars { display:flex; gap:6px; font-size:26px; cursor:pointer; margin-bottom:10px; }
+.stars span { color:#374151; transition:0.15s; }
+.stars span.active { color:#fbbf24; }
+.rate-box textarea { width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:10px; color:white; font-size:13px; margin-bottom:10px; resize:none; }
+.rate-submit-btn { width:100%; background:linear-gradient(135deg,#6366f1,#4f46e5); color:white; border:none; padding:11px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; }
+.given-rating { font-size:13px; color:#fbbf24; margin-top:12px; }
+.given-feedback { font-size:12px; color:#94a3b8; margin-top:4px; font-style:italic; }
+
+.cancel-reason-line { margin-top:10px; font-size:12px; color:#f87171; }
+.empty-state { text-align:center; padding:60px 20px; color:#64748b; font-size:13px; }
+
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:20px; }
+.modal-box { background:#1e293b; border-radius:16px; padding:24px; width:100%; max-width:340px; border:1px solid #334155; }
+.modal-box h3 { font-size:16px; margin-bottom:14px; color:#f1f5f9; }
+.modal-box textarea { width:100%; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:10px; color:white; font-size:13px; margin-bottom:14px; min-height:80px; resize:none; }
+.modal-actions { display:flex; gap:10px; }
+.modal-actions button { flex:1; padding:11px; border-radius:8px; border:none; font-weight:700; font-size:13px; cursor:pointer; }
+.modal-cancel { background:#334155; color:#cbd5e1; }
+.modal-confirm { background:#dc2626; color:white; }
+</style>
 </head>
 <body>
 
@@ -40,27 +78,260 @@
     </div>
 </div>
 
-<h2>Your Service Request History</h2>
+<h2 class="section-title">Your Service Request History</h2>
 <div id="bookingList"></div>
 
+<div class="modal-overlay" id="cancelModal">
+    <div class="modal-box">
+        <h3>Why are you cancelling?</h3>
+        <textarea id="cancelReasonInput" placeholder="Tell us the reason..."></textarea>
+        <div class="modal-actions">
+            <button class="modal-cancel" onclick="closeCancelModal()">Back</button>
+            <button class="modal-confirm" onclick="confirmCancel()">Confirm Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    document.getElementById('userName').innerText = localStorage.getItem('customerName') || "User";
-    function logout() { window.location.href = 'index.html'; }
+const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+const database = firebase.database();
 
-    const bookings = JSON.parse(localStorage.getItem('myBookings') || "[]");
-    const container = document.getElementById('bookingList');
+const phone = localStorage.getItem('customerPhone');
+document.getElementById('userName').innerText = localStorage.getItem('customerName') || "User";
 
-    bookings.slice().reverse().forEach(b => {
-        let statusClass = b.status === 'COMPLETED' ? 'completed' : (b.status === 'ACCEPTED' ? 'accepted' : 'pending');
-        container.innerHTML += `
-            <div class="card">
-                <span class="status ${statusClass}">${b.status || 'PENDING'}</span>
-                <h3>${b.service}</h3>
-                <p>Address: ${b.address}</p>
-                <p>Date: ${new Date(b.date).toLocaleString()}</p>
-            </div>
-        `;
+if (!phone) {
+    alert("Please login first!");
+    window.location.href = 'index.html';
+}
+
+function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+const maps = {};
+const markers = {};
+const trackers = {};
+let cancelTargetId = null;
+
+function openCancelModal(id) {
+    cancelTargetId = id;
+    document.getElementById('cancelModal').style.display = 'flex';
+}
+function closeCancelModal() {
+    document.getElementById('cancelModal').style.display = 'none';
+    document.getElementById('cancelReasonInput').value = '';
+    cancelTargetId = null;
+}
+function confirmCancel() {
+    const reason = document.getElementById('cancelReasonInput').value.trim() || 'No reason given';
+    if (!cancelTargetId) return;
+    database.ref('bookings/' + cancelTargetId).update({
+        status: 'Cancelled',
+        cancelledBy: 'customer',
+        cancelReason: reason
+    }).then(() => { closeCancelModal(); });
+}
+
+function setStar(id, n) {
+    document.querySelectorAll(`#stars-${id} span`).forEach((s, i) => {
+        s.classList.toggle('active', i < n);
     });
+    document.getElementById(`stars-${id}`).dataset.value = n;
+}
+
+function submitRating(id, workerPhone, customerName) {
+    const val = parseInt(document.getElementById(`stars-${id}`).dataset.value || 0);
+    if (!val) { alert('Please select a star rating'); return; }
+    const feedback = document.getElementById(`feedback-${id}`).value.trim();
+    database.ref('bookings/' + id).update({ rating: val, ratingFeedback: feedback, ratedAt: Date.now() });
+    if (workerPhone) {
+        database.ref('workers/' + workerPhone + '/ratings').push({
+            rating: val, comment: feedback, customerName: customerName, bookingId: id, timestamp: Date.now()
+        });
+    }
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function startTrackingCustomerLocation(id) {
+    if (trackers[id] || !navigator.geolocation) return;
+    const push = () => {
+        navigator.geolocation.getCurrentPosition(pos => {
+            database.ref('bookings/' + id + '/customerLocation').set({
+                lat: pos.coords.latitude, lng: pos.coords.longitude, updatedAt: Date.now()
+            });
+        }, () => {}, { enableHighAccuracy: true });
+    };
+    push();
+    trackers[id] = setInterval(push, 15000);
+}
+
+function initMap(id) {
+    if (maps[id]) return;
+    const el = document.getElementById(`map-${id}`);
+    if (!el) return;
+    const map = L.map(el, { zoomControl:false, attributionControl:false }).setView([20.5937, 78.9629], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    maps[id] = map;
+    markers[id] = {};
+}
+
+function updateMapMarkers(id, workerLoc, customerLoc) {
+    if (!maps[id]) return;
+    const map = maps[id];
+    const pts = [];
+    if (workerLoc) {
+        if (!markers[id].worker) {
+            markers[id].worker = L.marker([workerLoc.lat, workerLoc.lng], {
+                icon: L.divIcon({ className:'', html:'<div style="background:#38bdf8;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 0 8px rgba(56,189,248,0.8);"></div>' })
+            }).addTo(map);
+        } else { markers[id].worker.setLatLng([workerLoc.lat, workerLoc.lng]); }
+        pts.push([workerLoc.lat, workerLoc.lng]);
+    }
+    if (customerLoc) {
+        if (!markers[id].customer) {
+            markers[id].customer = L.marker([customerLoc.lat, customerLoc.lng], {
+                icon: L.divIcon({ className:'', html:'<div style="background:#22c55e;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 0 8px rgba(34,197,94,0.8);"></div>' })
+            }).addTo(map);
+        } else { markers[id].customer.setLatLng([customerLoc.lat, customerLoc.lng]); }
+        pts.push([customerLoc.lat, customerLoc.lng]);
+    }
+    if (pts.length === 2) {
+        map.fitBounds(pts, { padding: [30, 30] });
+        const km = haversineKm(pts[0][0], pts[0][1], pts[1][0], pts[1][1]);
+        const etaMin = Math.max(1, Math.round((km / 25) * 60));
+        const etaEl = document.getElementById(`eta-${id}`);
+        if (etaEl) etaEl.innerText = `Worker arrives in ~${etaMin} min (${km.toFixed(1)} km away)`;
+    } else if (pts.length === 1) {
+        map.setView(pts[0], 14);
+    }
+}
+
+function render(bookings) {
+    const container = document.getElementById('bookingList');
+    container.innerHTML = '';
+
+    if (bookings.length === 0) {
+        container.innerHTML = '<div class="empty-state">No bookings yet. Book your first service!</div>';
+        return;
+    }
+
+    bookings.forEach(b => {
+        const st = (b.status || 'Pending').toLowerCase();
+        let html = `<div class="card">
+            <div class="card-top">
+                <h3>${b.service}</h3>
+                <span class="status-badge st-${st}">${b.status || 'Pending'}</span>
+            </div>
+            <div class="meta-line">📍 ${b.address}</div>
+            <div class="meta-line">🗓️ ${b.date}</div>
+            <div class="price-line">${b.price}</div>`;
+
+        if (st === 'accepted' && b.workerPhone) {
+            html += `
+            <div class="worker-box">
+                <img src="${b.workerPhoto || 'https://via.placeholder.com/60'}">
+                <div>
+                    <div class="w-name">${b.workerName || 'Assigned Worker'}</div>
+                    <div class="w-rating" id="wrating-${b.id}">⭐ Loading...</div>
+                </div>
+                <a href="tel:${b.workerPhone}" class="call-btn">📞</a>
+            </div>
+            <div class="eta-box"><span id="eta-${b.id}">Fetching live location...</span></div>
+            <div class="map-box" id="map-${b.id}"></div>
+            <div class="action-row">
+                <button class="cancel-btn" onclick="openCancelModal('${b.id}')">Cancel Booking</button>
+            </div>`;
+        }
+
+        if (st === 'pending') {
+            html += `
+            <div class="meta-line" style="margin-top:10px; color:#fbbf24;">🔍 Finding a nearby professional...</div>
+            <div class="action-row">
+                <button class="cancel-btn" onclick="openCancelModal('${b.id}')">Cancel Booking</button>
+            </div>`;
+        }
+
+        if (st === 'completed') {
+            const warrantyActive = b.completedAt && (Date.now() - b.completedAt) <= TEN_DAYS_MS;
+            if (warrantyActive) {
+                const daysLeft = Math.ceil((TEN_DAYS_MS - (Date.now() - b.completedAt)) / (24*60*60*1000));
+                html += `
+                <div class="warranty-box">🛡️ 10-Day Warranty Active — ${daysLeft} day(s) left</div>
+                <div class="worker-box">
+                    <img src="${b.workerPhoto || 'https://via.placeholder.com/60'}">
+                    <div>
+                        <div class="w-name">${b.workerName || 'Worker'}</div>
+                        <div class="w-rating">Free re-fix if issue reoccurs</div>
+                    </div>
+                    <a href="tel:${b.workerPhone}" class="call-btn">📞</a>
+                </div>`;
+            }
+            if (!b.rating) {
+                html += `
+                <div class="rate-box">
+                    <p>How was your experience?</p>
+                    <div class="stars" id="stars-${b.id}" data-value="0">
+                        ${[1,2,3,4,5].map(n => `<span onclick="setStar('${b.id}', ${n})">★</span>`).join('')}
+                    </div>
+                    <textarea id="feedback-${b.id}" placeholder="What did you like or what went wrong?"></textarea>
+                    <button class="rate-submit-btn" onclick="submitRating('${b.id}', '${b.workerPhone || ''}', '${(b.customerName||'').replace(/'/g,"")}')">Submit Rating</button>
+                </div>`;
+            } else {
+                html += `
+                <div class="given-rating">You rated: ${'★'.repeat(b.rating)}${'☆'.repeat(5-b.rating)}</div>
+                ${b.ratingFeedback ? `<div class="given-feedback">"${b.ratingFeedback}"</div>` : ''}`;
+            }
+        }
+
+        if (st === 'cancelled') {
+            html += `<div class="cancel-reason-line">❌ Cancelled by ${b.cancelledBy || 'system'}${b.cancelReason ? ': ' + b.cancelReason : ''}</div>`;
+        }
+
+        html += `</div>`;
+        container.innerHTML += html;
+    });
+
+    bookings.forEach(b => {
+        const st = (b.status || '').toLowerCase();
+        if (st === 'accepted' && b.workerPhone) {
+            initMap(b.id);
+            startTrackingCustomerLocation(b.id);
+
+            database.ref('bookings/' + b.id + '/workerLocation').on('value', snap => {
+                const wLoc = snap.val();
+                database.ref('bookings/' + b.id + '/customerLocation').once('value').then(csnap => {
+                    updateMapMarkers(b.id, wLoc, csnap.val());
+                });
+            });
+
+            database.ref('workers/' + b.workerPhone + '/ratings').once('value').then(snap => {
+                let total = 0, count = 0;
+                snap.forEach(r => { total += parseInt(r.val().rating); count++; });
+                const el = document.getElementById(`wrating-${b.id}`);
+                if (el) el.innerText = count > 0 ? `⭐ ${(total/count).toFixed(1)} (${count} reviews)` : '⭐ New Professional';
+            });
+        }
+    });
+}
+
+if (phone) {
+    database.ref('bookings').orderByChild('customerPhone').equalTo(phone).on('value', snap => {
+        const list = [];
+        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+        list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        render(list);
+    });
+}
 </script>
 </body>
 </html>

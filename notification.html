@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Notifications | Domvex</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system, sans-serif; }
+    body { background:#f8fafc; padding-bottom:40px; }
+    .header-bar { background:#fff; padding:16px 18px; display:flex; align-items:center; gap:16px; border-bottom:1px solid #f1f5f9; position:sticky; top:0; }
+    .back-btn { text-decoration:none; color:#0f172a; font-weight:700; font-size:20px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#f8fafc; }
+    .header-bar h2 { font-size:18px; font-weight:800; color:#0f172a; }
+
+    .notif-card {
+        margin: 14px 16px;
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .notif-card .msg { font-size: 14px; color: #0f172a; font-weight: 600; line-height: 1.5; }
+    .notif-card .time { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+    .empty-state { text-align:center; padding:80px 20px; color:#94a3b8; font-size:14px; }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+    <a href="index.html" class="back-btn">←</a>
+    <h2>Notifications</h2>
+</div>
+
+<div id="notifList"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const database = firebase.database();
+
+    database.ref('notifications').orderByChild('timestamp').on('value', snap => {
+        const list = document.getElementById('notifList');
+        list.innerHTML = '';
+        let items = [];
+        snap.forEach(child => items.push(child.val()));
+        items.reverse();
+
+        if (items.length === 0) {
+            list.innerHTML = '<div class="empty-state">No notifications yet</div>';
+            return;
+        }
+
+        items.forEach(n => {
+            const d = new Date(n.timestamp);
+            list.innerHTML += `
+                <div class="notif-card">
+                    <div class="msg">🔔 ${n.message}</div>
+                    <div class="time">${d.toLocaleDateString()} • ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                </div>
+            `;
+        });
+    });
+</script>
+</body>
+</html>

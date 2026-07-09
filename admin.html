@@ -41,6 +41,19 @@
             <h1>System Overview</h1>
             <button onclick="location.reload()" style="width: auto; background: #ef4444;">Logout</button>
         </header>
+        <div class="metrics-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="metric-card" style="text-align:left;">
+                <h3 style="margin-bottom:10px;">💰 Add Wallet Money</h3>
+                <input type="tel" id="walletPhoneInput" placeholder="Customer Phone (10 digit)" maxlength="10" style="width:100%; margin-bottom:8px;">
+                <input type="number" id="walletAmountInput" placeholder="Amount (₹)" style="width:100%; margin-bottom:8px;">
+                <button onclick="addWalletMoney()" style="background:#10b981;">Add to Wallet</button>
+            </div>
+            <div class="metric-card" style="text-align:left;">
+                <h3 style="margin-bottom:10px;">📢 Send Notification</h3>
+                <input type="text" id="notifMessageInput" placeholder="Notification message" style="width:100%; margin-bottom:8px;">
+                <button onclick="sendNotification()" style="background:#3b82f6;">Send to All Customers</button>
+            </div>
+        </div>
 
         <div class="metrics-grid">
             <div class="metric-card"><h3>Customers</h3><div id="countCustomers" style="font-size: 30px;">0</div></div>
@@ -106,6 +119,35 @@
 
         function remove(path) { if(confirm("Sure, delete?")) database.ref(path).remove(); }
 
+        function addWalletMoney() {
+            const phone = document.getElementById('walletPhoneInput').value.trim();
+            const amount = parseInt(document.getElementById('walletAmountInput').value);
+            if (!phone || phone.length !== 10) { alert('Enter valid 10-digit phone number'); return; }
+            if (!amount || amount <= 0) { alert('Enter valid amount'); return; }
+
+            database.ref('customers/' + phone).once('value').then(snap => {
+                if (!snap.exists()) { alert('Customer not found!'); return; }
+                const current = snap.val().walletBalance || 0;
+                database.ref('customers/' + phone).update({ walletBalance: current + amount }, () => {
+                    alert(`₹${amount} added to ${phone}'s wallet!`);
+                    document.getElementById('walletPhoneInput').value = '';
+                    document.getElementById('walletAmountInput').value = '';
+                });
+            });
+        }
+
+        function sendNotification() {
+            const msg = document.getElementById('notifMessageInput').value.trim();
+            if (!msg) { alert('Enter a message'); return; }
+            database.ref('notifications').push({
+            
+                message: msg,
+                timestamp: Date.now()
+            }, () => {
+                alert('Notification sent to all customers!');
+                document.getElementById('notifMessageInput').value = '';
+            });
+        }
         function loadData() {
             database.ref('customers').on('value', snap => { document.getElementById('countCustomers').innerText = snap.numChildren(); });
             

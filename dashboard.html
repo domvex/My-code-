@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domvex Worker Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #0b0f17; color: white; padding: 20px; }
         
-        /* Header Fix for Mobile */
         header { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; text-align: center; }
         h1 { color: #00d2ff; font-weight: 800; }
         .header-actions { display: flex; gap: 10px; justify-content: center; }
         .earnings-link { background: #6366f1; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
         .logout-btn { background: #ef4444; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
         
-        /* Responsive Grid */
         .grid-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .grid-container { grid-template-columns: 1fr 1fr; } }
         
@@ -30,7 +29,13 @@
         .action-btn { background: #00d2ff; color: #0b0f17; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; display: block; width: 100%; text-align: center; text-decoration: none; }
         .complete-btn { background: #10b981; color: white; }
         .call-btn { background: #f59e0b; color: white; }
+        .cancel-btn { background: transparent; border: 1.5px solid #ef4444; color: #ef4444; }
         .rating-box { background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #f59e0b; text-align: center; }
+
+        .cust-box { background:#111827; border-radius:10px; padding:12px; margin-top:10px; font-size:13px; color:#cbd5e1; }
+        .cust-box p { margin-bottom:4px; }
+        .eta-line { background:linear-gradient(135deg,#1e3a8a,#312e81); border-radius:10px; padding:10px 12px; font-size:12.5px; font-weight:700; color:#e0e7ff; margin-top:10px; }
+        .map-box { height:160px; border-radius:10px; margin-top:10px; overflow:hidden; border:1px solid #374151; }
     </style>
 </head>
 <body>
@@ -60,6 +65,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE",
@@ -74,7 +80,13 @@
         const database = firebase.database();
 
         let mySkill = "";
+        let myName = "";
+        let myPhoto = "";
         const phone = localStorage.getItem('workerPhone');
+
+        const trackers = {};
+        const maps = {};
+        const markers = {};
 
         window.onload = function() {
             if (!phone) {
@@ -84,7 +96,10 @@
             }
             database.ref('workers/' + phone).once('value', (snap) => {
                 if(snap.exists()) {
-                    mySkill = snap.val().skill;
+                    const w = snap.val();
+                    mySkill = w.skill;
+                    myName = w.name;
+                    myPhoto = w.workerPhoto || '';
                     loadBookings();
                     loadRating();
                 }
@@ -99,6 +114,71 @@
             });
         }
 
+        function haversineKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function startSharingLocation(id) {
+            if (trackers[id] || !navigator.geolocation) return;
+            const push = () => {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    database.ref('bookings/' + id + '/workerLocation').set({
+                        lat: pos.coords.latitude, lng: pos.coords.longitude, updatedAt: Date.now()
+                    });
+                }, () => {}, { enableHighAccuracy: true });
+            };
+            push();
+            trackers[id] = setInterval(push, 15000);
+        }
+
+        function stopSharingLocation(id) {
+            if (trackers[id]) { clearInterval(trackers[id]); delete trackers[id]; }
+        }
+
+        function initMap(id) {
+            if (maps[id]) return;
+            const el = document.getElementById(`map-${id}`);
+            if (!el) return;
+            const map = L.map(el, { zoomControl:false, attributionControl:false }).setView([20.5937, 78.9629], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            maps[id] = map;
+            markers[id] = {};
+        }
+
+        function updateMapMarkers(id, workerLoc, customerLoc) {
+            if (!maps[id]) return;
+            const map = maps[id];
+            const pts = [];
+            if (workerLoc) {
+                if (!markers[id].worker) {
+                    markers[id].worker = L.marker([workerLoc.lat, workerLoc.lng], {
+                        icon: L.divIcon({ className:'', html:'<div style="background:#00d2ff;width:16px;height:16px;border-radius:50%;border:3px solid white;"></div>' })
+                    }).addTo(map);
+                } else { markers[id].worker.setLatLng([workerLoc.lat, workerLoc.lng]); }
+                pts.push([workerLoc.lat, workerLoc.lng]);
+            }
+            if (customerLoc) {
+                if (!markers[id].customer) {
+                    markers[id].customer = L.marker([customerLoc.lat, customerLoc.lng], {
+                        icon: L.divIcon({ className:'', html:'<div style="background:#22c55e;width:16px;height:16px;border-radius:50%;border:3px solid white;"></div>' })
+                    }).addTo(map);
+                } else { markers[id].customer.setLatLng([customerLoc.lat, customerLoc.lng]); }
+                pts.push([customerLoc.lat, customerLoc.lng]);
+            }
+            if (pts.length === 2) {
+                map.fitBounds(pts, { padding:[20,20] });
+                const km = haversineKm(pts[0][0], pts[0][1], pts[1][0], pts[1][1]);
+                const el = document.getElementById(`eta-${id}`);
+                if (el) el.innerText = `Customer is ~${km.toFixed(1)} km away`;
+            } else if (pts.length === 1) {
+                map.setView(pts[0], 14);
+            }
+        }
+
         function loadBookings() {
             database.ref('bookings').on('value', (snap) => {
                 const container = document.getElementById('liveBookings');
@@ -106,33 +186,84 @@
                 let found = false;
                 snap.forEach((child) => {
                     const data = child.val();
+                    const id = child.key;
                     const isMyAccepted = (data.status === 'Accepted' && data.acceptedBy === phone);
                     const isAvailable = (data.status === 'Pending' && data.service === mySkill);
                     if(isMyAccepted || isAvailable) {
                         found = true;
                         container.innerHTML += `
                             <div class="card">
-                                <p><strong>ID:</strong> ${data.bookingId} <span class="status-${data.status.toLowerCase()}">[${data.status}]</span></p>
+                                <p><strong>ID:</strong> ${data.bookingId || id} <span class="status-${(data.status||'').toLowerCase()}">[${data.status}]</span></p>
                                 <p><strong>Customer:</strong> ${data.customerName}</p>
                                 <p><strong>Service:</strong> ${data.service}</p>
                                 <p><strong>Address:</strong> ${data.address}</p>
-                                ${isMyAccepted ? `<p><strong>No:</strong> ${data.customerPhone}</p> <a href="tel:${data.customerPhone}" class="action-btn call-btn">Call Customer</a>` : ''}
-                                ${data.status === 'Pending' ? `<button class="action-btn" onclick="updateStatus('${data.bookingId}', 'Accepted')">Accept Booking</button>` : ''}
-                                ${isMyAccepted ? `<button class="action-btn complete-btn" onclick="updateStatus('${data.bookingId}', 'Completed')">Complete Job</button>` : ''}
+                                ${isMyAccepted ? `
+                                <div class="cust-box">
+                                    <p>📞 ${data.customerPhone}</p>
+                                    <p>📍 ${data.address}</p>
+                                </div>
+                                <div class="eta-line" id="eta-${id}">Fetching customer location...</div>
+                                <div class="map-box" id="map-${id}"></div>
+                                <a href="tel:${data.customerPhone}" class="action-btn call-btn">Call Customer</a>
+                                ` : ''}
+                                ${data.status === 'Pending' ? `<button class="action-btn" onclick="updateStatus('${id}', 'Accepted')">Accept Booking</button>` : ''}
+                                ${isMyAccepted ? `<button class="action-btn complete-btn" onclick="updateStatus('${id}', 'Completed')">Complete Job</button>` : ''}
+                                ${isMyAccepted ? `<button class="action-btn cancel-btn" onclick="cancelBooking('${id}')">Cancel Booking</button>` : ''}
                             </div>`;
                     }
                 });
                 if(!found) container.innerHTML = '<p>No bookings available.</p>';
+
+                snap.forEach((child) => {
+                    const data = child.val();
+                    const id = child.key;
+                    if (data.status === 'Accepted' && data.acceptedBy === phone) {
+                        initMap(id);
+                        startSharingLocation(id);
+                        database.ref('bookings/' + id + '/customerLocation').on('value', csnap => {
+                            database.ref('bookings/' + id + '/workerLocation').once('value').then(wsnap => {
+                                updateMapMarkers(id, wsnap.val(), csnap.val());
+                            });
+                        });
+                    }
+                });
             });
         }
 
         function updateStatus(id, newStatus) {
-            const updates = { status: newStatus };
-            if(newStatus === 'Accepted') updates.acceptedBy = phone;
-            if(newStatus === 'Completed') updates.acceptedBy = phone;
-            database.ref('bookings/' + id).update(updates).then(() => {
-                alert("Status updated!");
-            });
+            if (newStatus === 'Accepted') {
+                database.ref('bookings/' + id).update({
+                    status: 'Accepted',
+                    acceptedBy: phone,
+                    workerName: myName,
+                    workerPhoto: myPhoto,
+                    workerPhone: phone
+                }).then(() => {
+                    startSharingLocation(id);
+                    alert("Booking Accepted!");
+                });
+                return;
+            }
+            if (newStatus === 'Completed') {
+                stopSharingLocation(id);
+                database.ref('bookings/' + id).update({ status: 'Completed', completedAt: Date.now() }).then(() => {
+                    alert("Job marked as completed!");
+                });
+                return;
+            }
+        }
+
+        function cancelBooking(id) {
+            if (!confirm("Cancel this booking? It will go back to the available pool for other workers.")) return;
+            stopSharingLocation(id);
+            database.ref('bookings/' + id).update({
+                status: 'Pending',
+                acceptedBy: null,
+                workerName: null,
+                workerPhoto: null,
+                workerPhone: null,
+                workerLocation: null
+            }).then(() => alert("Booking cancelled and returned to the pool."));
         }
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
@@ -146,17 +277,14 @@
             });
         });
 
-        // Terms check: Agar registered nahi hai toh wapas terms par bhej
-    if (localStorage.getItem('workerPhone') && !localStorage.getItem('isRegistered')) {
-        window.location.href = 'terms.html';
-    }
+        if (localStorage.getItem('workerPhone') && !localStorage.getItem('isRegistered')) {
+            window.location.href = 'terms.html';
+        }
 
-    // Back button ka fix: Homepage par bhejne ke liye
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () {
-        window.location.href = 'index.html';
-    };
-
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            window.location.href = 'index.html';
+        };
     </script>
 </body>
 </html>

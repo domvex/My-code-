@@ -37,6 +37,24 @@
             cursor: pointer; transition: background 0.3s;
         }
         .btn-confirm:active { transform: scale(0.98); }
+
+        /* NEW: Wallet styles */
+        .wallet-box {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdfa);
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .wallet-box .wallet-label { font-size: 12px; color: #065f46; font-weight: 600; }
+        .wallet-box .wallet-amount { font-size: 17px; color: #047857; font-weight: 800; }
+        .wallet-toggle { display: none; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 13px; color: #065f46; }
+        .wallet-toggle input { width: 16px; height: 16px; }
+        .cashback-note { font-size: 12px; color: #16a34a; margin-bottom: 18px; }
+        #walletDeductLine, #finalPayLine { display: none; }
     </style>
 </head>
 <body>
@@ -52,7 +70,21 @@
         <div id="displayArea"></div>
         <hr style="margin: 10px 0;">
         <p>Total: <span id="totalPrice">₹0</span></p>
+        <p id="walletDeductLine">Wallet Used: <span id="walletDeductAmt" style="color:#059669;">-₹0</span></p>
+        <p id="finalPayLine">You Pay: <span id="finalPayAmt">₹0</span></p>
     </div>
+
+    <div class="wallet-box" id="walletBox">
+        <div>
+            <div class="wallet-label">Wallet Balance</div>
+            <div class="wallet-amount" id="walletBalanceText">₹0</div>
+        </div>
+    </div>
+    <div class="wallet-toggle" id="walletToggleWrap">
+        <input type="checkbox" id="useWalletCheckbox" onchange="applyWalletToggle()">
+        <label for="useWalletCheckbox">Use wallet balance for this booking</label>
+    </div>
+    <p class="cashback-note">💰 Bookings above ₹800 earn ₹50 cashback (first 3 bookings only)</p>
 
     <form id="bookingForm">
         <div class="input-group">
@@ -71,7 +103,13 @@
     </form>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
+    const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const database = firebase.database();
+
     // 1. Cart se saari items uthana
     const cart = JSON.parse(localStorage.getItem('cartItems') || "[]");
     const displayArea = document.getElementById('displayArea');
@@ -82,10 +120,8 @@
 
     cart.forEach(item => {
         serviceNames.push(item.name);
-        // Price mein se sirf numbers nikalna
         let priceVal = parseInt(item.price.replace(/[^0-9]/g, ''));
         total += priceVal;
-
         displayArea.innerHTML += `<p>${item.name} <span>${item.price}</span></p>`;
     });
 
@@ -95,28 +131,95 @@
     document.getElementById('custName').value = localStorage.getItem('customerName') || "";
     document.getElementById('custPhone').value = localStorage.getItem('customerPhone') || "";
 
-    // 3. Submit Logic
+    // 3. Wallet balance fetch
+    const customerPhone = localStorage.getItem('customerPhone');
+    let walletBalance = 0;
+    let useWallet = false;
+
+    if (customerPhone) {
+        database.ref('customers/' + customerPhone).once('value').then(snap => {
+            const data = snap.val() || {};
+            walletBalance = data.walletBalance || 0;
+            if (walletBalance > 0) {
+                document.getElementById('walletBox').style.display = 'flex';
+                document.getElementById('walletToggleWrap').style.display = 'flex';
+                document.getElementById('walletBalanceText').innerText = "₹" + walletBalance;
+            }
+        });
+    }
+
+    function applyWalletToggle() {
+        useWallet = document.getElementById('useWalletCheckbox').checked;
+        const deductLine = document.getElementById('walletDeductLine');
+        const payLine = document.getElementById('finalPayLine');
+        if (useWallet) {
+            const deduction = Math.min(walletBalance, total);
+            deductLine.style.display = 'flex';
+            document.getElementById('walletDeductAmt').innerText = "-₹" + deduction;
+            payLine.style.display = 'flex';
+            document.getElementById('finalPayAmt').innerText = "₹" + (total - deduction);
+        } else {
+            deductLine.style.display = 'none';
+            payLine.style.display = 'none';
+        }
+    }
+
+    // 4. Submit Logic
     document.getElementById('bookingForm').onsubmit = function(e) {
         e.preventDefault();
 
+        const walletDeduction = useWallet ? Math.min(walletBalance, total) : 0;
+        const finalTotal = total - walletDeduction;
+        const bookingId = "DMX" + Date.now();
+
         const newBooking = {
-            service: serviceNames.join(", "), // Saari services comma se alag
-            price: "₹" + total,
+            bookingId: bookingId,
+            service: serviceNames.join(", "),
+            price: "₹" + finalTotal,
+            originalPrice: "₹" + total,
             name: document.getElementById('custName').value,
+            customerName: document.getElementById('custName').value,
+            customerPhone: customerPhone || document.getElementById('custPhone').value,
             address: document.getElementById('custAddress').value,
             phone: document.getElementById('custPhone').value,
             date: new Date().toLocaleDateString(),
-            status: "PENDING" // Dashboard ke liye zaroori
+            status: "Pending",
+            walletUsed: walletDeduction
         };
 
+        // Firebase me save (admin panel ke liye)
+        database.ref('bookings/' + bookingId).set(newBooking);
+
+        // Wallet se paise kaate agar use kiya
+        if (customerPhone && walletDeduction > 0) {
+            database.ref('customers/' + customerPhone).update({
+                walletBalance: walletBalance - walletDeduction
+            });
+        }
+
+        // Cashback logic: ₹800+ pe ₹50, sirf pehli 3 baar
+        if (customerPhone && total >= 800) {
+            database.ref('customers/' + customerPhone).once('value').then(snap => {
+                const data = snap.val() || {};
+                const cashbackCount = data.cashbackCount || 0;
+                if (cashbackCount < 3) {
+                    const currentBalance = data.walletBalance !== undefined ? data.walletBalance : 0;
+                    database.ref('customers/' + customerPhone).update({
+                        walletBalance: currentBalance + 50,
+                        cashbackCount: cashbackCount + 1
+                    });
+                }
+            });
+        }
+
+        // Purana localStorage bhi rakha (customer_dashboard.html ke liye)
         let bookings = JSON.parse(localStorage.getItem('myBookings') || "[]");
         bookings.push(newBooking);
         localStorage.setItem('myBookings', JSON.stringify(bookings));
-        
-        // Cart clear kar dena
+
         localStorage.removeItem('cartItems');
 
-        alert('Booking Confirmed!');
+        alert('Booking Confirmed!' + (total >= 800 ? ' You may have earned ₹50 cashback!' : ''));
         window.location.href = 'customer_dashboard.html';
     };
 </script>
