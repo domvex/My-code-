@@ -33,8 +33,11 @@
 
         /* FLOATING QUICK GRID Image (LIGHT THEME) */
         .services-quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .quick-box { background: #ffffff; border-radius: 12px; padding: 15px; text-align: center; text-decoration: none; color: #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
-        .quick-box img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .quick-box { background: #ffffff; border-radius: 12px; padding: 15px; text-align: center; text-decoration: none; color: #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.quick-box:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(109, 40, 217, 0.18); }
+.quick-box img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; transition: transform 0.3s ease; }
+.quick-box:hover img { transform: scale(1.05); }
+.quick-box .card-rating { color: #f59e0b; font-size: 11.5px; font-weight: 700; margin-top: 4px; }
 
         /* NEW: WHY CHOOSE US SECTION */
         .why-choose-us { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 40px 0; }
@@ -93,8 +96,8 @@
         .hamburger span { width: 25px; height: 3px; background: #1e293b; border-radius: 2px; }
 
         /* Mobile Menu Overlay */
-        .mobile-menu { display: none; position: fixed; top: 70px; right: 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 999; }
-        .mobile-menu a, .mobile-menu button { display: block; padding: 10px 0; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+        .mobile-menu { display: none; position: fixed; top: 70px; right: 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 999; min-width: 200px; }
+        .mobile-menu a, .mobile-menu button { display: block; padding: 10px 0; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 14px; }
 
         
 
@@ -407,7 +410,7 @@
         </div>
     </header>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile Menu (content set dynamically via JS depending on customer/worker login) -->
     <div class="mobile-menu" id="mobileMenu">
         <a href="customer_dashboard.html">Bookings</a>
         <a href="wallet.html">Wallet</a>
@@ -432,26 +435,32 @@
         <a href="#" onclick="handleCategoryClick('Electrician')" class="quick-box">
             <img src="electrician.jpg" alt="Electrician">
             <span>Electrician</span>
+            <div class="card-rating">⭐ 4.8</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Plumber')" class="quick-box">
             <img src="plumber.jpg" alt="Plumber">
             <span>Plumber</span>
+            <div class="card-rating">⭐ 4.7</div>
         </a>
         <a href="#" onclick="handleCategoryClick('AC Technician')" class="quick-box">
             <img src="ac_technician.jpg" alt="AC Technician">
             <span>AC Technician</span>
+            <div class="card-rating">⭐ 4.8</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Cleaning')" class="quick-box">
             <img src="cleaning.jpg" alt="Cleaning">
             <span>Cleaning</span>
+            <div class="card-rating">⭐ 4.6</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Painting')" class="quick-box">
             <img src="painting.jpg" alt="Painting">
             <span>Painting</span>
+            <div class="card-rating">⭐ 4.6</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Beauty/Spa')" class="quick-box">
             <img src="beauty_spa.jpg" alt="Beauty/Spa">
             <span>Beauty/Spa</span>
+            <div class="card-rating">⭐ 4.8</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Laptop Repair')" class="quick-box">
             <img src="laptop_repair.jpg" alt="Laptop Repair">
@@ -565,13 +574,14 @@
                             <input type="tel" id="custLogPhone" placeholder="Enter 10 digit number" required>
                         </div>
                     </div>
-                 <div class="form-group">
+                    <div class="form-group">
                         <label>Password</label>
                         <div class="pass-field-wrap">
                             <input type="password" id="custLogPass" placeholder="Enter password" required>
                             <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custLogPass', this)">👁️</button>
-                        
-                 <button type="submit" class="submit-btn cust-submit">Secure Login</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn cust-submit">Secure Login</button>
                     <span class="toggle-form-text" onclick="toggleCustForm(true)">New to Domvex? Create Customer Account</span>
                 </form>
             </div>
@@ -586,11 +596,13 @@
                             <input type="tel" id="custSignPhone" placeholder="Enter 10 digit number" required>
                         </div>
                     </div>
-                   <div class="form-group">
+                    <div class="form-group">
                         <label>Password</label>
                         <div class="pass-field-wrap">
                             <input type="password" id="custSignPass" placeholder="Enter password" required>
                             <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custSignPass', this)">👁️</button>
+                        </div>
+                    </div>
                     <button type="submit" class="submit-btn cust-submit">Register Account</button>
                     <span class="toggle-form-text" onclick="toggleCustForm(false)">Already have an account? Sign In</span>
                 </form>
@@ -714,11 +726,37 @@
             if (custName) {
                 navButtons.style.display = 'none';
                 hambBtn.style.display = 'flex';
+                loadCustomerMenu();
             } else if (workerPhone) {
-                navButtons.innerHTML = `<a href="dashboard.html" class="nav-link-btn">Worker Dashboard</a>
-                                        <button class="nav-link-btn" onclick="logout()">Logout</button>`;
+                navButtons.style.display = 'none';
+                hambBtn.style.display = 'flex';
+                loadWorkerMenu();
             }
         };
+
+        // Customer hamburger menu (original content, kept as-is)
+        function loadCustomerMenu() {
+            document.getElementById('mobileMenu').innerHTML = `
+                <a href="customer_dashboard.html">Bookings</a>
+                <a href="wallet.html">Wallet</a>
+                <a href="javascript:void(0)" onclick="alert('Helpline 1: +91 82790 82569 \\nHelpline 2: +91 92562 90755 \\nEmail: domvexindia@gmail.com')">Help & Support</a>
+                <a href="notification.html">Notification</a>
+                <button onclick="logout()">Logout</button>
+            `;
+        }
+
+        // Worker hamburger menu (new)
+        function loadWorkerMenu() {
+            document.getElementById('mobileMenu').innerHTML = `
+                <a href="worker_profile.html">👤 My Profile</a>
+                <a href="dashboard.html">📋 My Jobs</a>
+                <a href="worker_earning.html">💰 My Earnings</a>
+                <a href="worker_profile.html">🏦 Bank & Payouts</a>
+                <a href="javascript:void(0)" onclick="alert('Notifications coming soon!')">🔔 Notifications</a>
+                <a href="javascript:void(0)" onclick="alert('Helpline 1: +91 82790 82569 \\nHelpline 2: +91 92562 90755 \\nEmail: domvexindia@gmail.com')">📞 Help & Support</a>
+                <button onclick="logout()">🚪 Logout</button>
+            `;
+        }
 
         function toggleMenu() {
             const menu = document.getElementById('mobileMenu');
@@ -744,6 +782,7 @@
                    closeModal('customerModal');
                     document.getElementById('navAuthButtons').style.display = 'none';
                     document.getElementById('hambBtn').style.display = 'flex';
+                    loadCustomerMenu();
                 } else { alert('Invalid credentials!'); }
             });
         };
@@ -817,7 +856,7 @@
                     phone: document.getElementById('workerPhoneInput').value,
                     skill: document.getElementById('workerSkill').value,
                     experience: document.getElementById('workerExpInput').value,
-                    aadhaar: document.getElementById('workeradharinput').value,
+                    aadhaar: document.getElementById('workerAadhaarInput').value,
                     bankDetails: document.getElementById('workerBankInput').value,
                     ifscCode: document.getElementById('workerIfscInput').value,
                     workerPhoto: workerUrl,
