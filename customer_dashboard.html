@@ -94,24 +94,28 @@ h2.section-title { font-size:15px; margin-bottom:14px; padding-left:10px; border
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="config.js"></script>
-
 <script src="script.js"></script>
 <script>
-const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-const database = firebase.database();
-
-const phone = localStorage.getItem('customerPhone');
+// NOTE: customer ki identity ab UID (Firebase Auth) se hoti hai, phone sirf
+// display/contact ke liye. config.js/script.js pehle se firebase.initializeApp()
+// aur `const database` set kar dete hain — yahan dobara declare nahi karna.
+const uid = localStorage.getItem('customerUID');
 document.getElementById('userName').innerText = localStorage.getItem('customerName') || "User";
 
-if (!phone) {
+if (!uid) {
     alert("Please login first!");
     window.location.href = 'index.html';
 }
 
-function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+function logout() {
+    firebase.auth().signOut().finally(() => {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    });
+}
 
 const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
 const maps = {};
@@ -145,13 +149,15 @@ function setStar(id, n) {
     document.getElementById(`stars-${id}`).dataset.value = n;
 }
 
-function submitRating(id, workerPhone, customerName) {
+// workerUID = worker's Firebase Auth uid (stored as "acceptedBy" on the booking),
+// NOT their phone number — ratings live under workers/{uid}/ratings.
+function submitRating(id, workerUID, customerName) {
     const val = parseInt(document.getElementById(`stars-${id}`).dataset.value || 0);
     if (!val) { alert('Please select a star rating'); return; }
     const feedback = document.getElementById(`feedback-${id}`).value.trim();
     database.ref('bookings/' + id).update({ rating: val, ratingFeedback: feedback, ratedAt: Date.now() });
-    if (workerPhone) {
-        database.ref('workers/' + workerPhone + '/ratings').push({
+    if (workerUID) {
+        database.ref('workers/' + workerUID + '/ratings').push({
             rating: val, comment: feedback, customerName: customerName, bookingId: id, timestamp: Date.now()
         });
     }
@@ -237,7 +243,7 @@ function render(bookings) {
             </div>
             <div class="meta-line">📍 ${b.address}</div>
             <div class="meta-line">🗓️ ${b.date}</div>
-            <div class="price-line">${b.price}</div>`;
+            <div class="price-line">₹${b.price}</div>`;
 
         if (st === 'accepted' && b.workerPhone) {
             html += `
@@ -287,7 +293,7 @@ function render(bookings) {
                         ${[1,2,3,4,5].map(n => `<span onclick="setStar('${b.id}', ${n})">★</span>`).join('')}
                     </div>
                     <textarea id="feedback-${b.id}" placeholder="What did you like or what went wrong?"></textarea>
-                    <button class="rate-submit-btn" onclick="submitRating('${b.id}', '${b.workerPhone || ''}', '${(b.customerName||'').replace(/'/g,"")}')">Submit Rating</button>
+                    <button class="rate-submit-btn" onclick="submitRating('${b.id}', '${b.acceptedBy || ''}', '${(b.customerName||'').replace(/'/g,"")}')">Submit Rating</button>
                 </div>`;
             } else {
                 html += `
@@ -317,18 +323,23 @@ function render(bookings) {
                 });
             });
 
-            database.ref('workers/' + b.workerPhone + '/ratings').once('value').then(snap => {
-                let total = 0, count = 0;
-                snap.forEach(r => { total += parseInt(r.val().rating); count++; });
-                const el = document.getElementById(`wrating-${b.id}`);
-                if (el) el.innerText = count > 0 ? `⭐ ${(total/count).toFixed(1)} (${count} reviews)` : '⭐ New Professional';
-            });
+            // b.acceptedBy holds the worker's UID (their real database key), not phone.
+            if (b.acceptedBy) {
+                database.ref('workers/' + b.acceptedBy + '/ratings').once('value').then(snap => {
+                    let total = 0, count = 0;
+                    snap.forEach(r => { total += parseInt(r.val().rating); count++; });
+                    const el = document.getElementById(`wrating-${b.id}`);
+                    if (el) el.innerText = count > 0 ? `⭐ ${(total/count).toFixed(1)} (${count} reviews)` : '⭐ New Professional';
+                });
+            }
         }
     });
 }
 
-if (phone) {
-    database.ref('bookings').orderByChild('customerPhone').equalTo(phone).on('value', snap => {
+// NOTE: is query ke kaam karne ke liye booking_page.html mein booking create
+// karte waqt "customerUID" field save karni zaroori hai.
+if (uid) {
+    database.ref('bookings').orderByChild('customerUID').equalTo(uid).on('value', snap => {
         const list = [];
         snap.forEach(child => list.push({ id: child.key, ...child.val() }));
         list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));

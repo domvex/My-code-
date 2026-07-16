@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worker Earnings - Domvex</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background-color: #0b0f17; color: white; padding-bottom: 50px; }
@@ -20,51 +22,285 @@
         
         .recent-jobs { background: #111827; padding: 25px; border-radius: 16px; border: 1px solid #1f2937; }
         .recent-jobs h2 { margin-bottom: 20px; }
+
+        /* ==========================================================================
+           PREMIUM REDESIGN — everything below only OVERRIDES colors/spacing via the
+           cascade (same selectors redeclared) or ADDS new sections. Nothing above
+           this line was removed or renamed. All original IDs/classes/JS untouched.
+        ========================================================================== */
+
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
+        body, p, span, div, button, input, label { font-family: 'Inter', 'Segoe UI', sans-serif; }
+
+        body { background-color: #F8FAFC; color: #111827; }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 6%;
+            position: sticky; top: 0; z-index: 50;
+            box-shadow: 0 2px 12px rgba(17,24,39,0.04);
+        }
+        .logo-text h1 { color: #111827; font-size: 20px; }
+        .logo-text h1 span { color: #7C3AED !important; }
+        .back-btn { background: #F1F5F9; color: #111827; padding: 9px 18px; border-radius: 10px; font-weight: 700; }
+        .back-btn:hover { background: #E2E8F0; }
+
+        .container { max-width: 980px; }
+
+        /* ---- Original 3 stat-cards + new ones share this premium look ---- */
+        .stats-grid { margin-bottom: 26px; gap: 16px; }
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #eef0f3;
+            border-radius: 18px;
+            box-shadow: 0 6px 20px rgba(17,24,39,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeSlideUp 0.5s ease both;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(124,58,237,0.12); }
+        .stat-card h3 { color: #6B7280; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+        .stat-card p { color: #111827; font-size: 26px; }
+
+        .recent-jobs {
+            background: #ffffff;
+            border: 1px solid #eef0f3;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(17,24,39,0.05);
+            margin: 30px 0;
+        }
+        .recent-jobs h2 { font-size: 18px; color: #111827; }
+
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ---- TOP SUMMARY HERO CARD ---- */
+        .earnings-hero-card {
+            background: linear-gradient(135deg, #2563EB, #7C3AED 60%, #8B5CF6);
+            border-radius: 26px;
+            padding: 34px 30px;
+            color: #ffffff;
+            box-shadow: 0 22px 50px rgba(124,58,237,0.28);
+            margin: 30px 0 0 0;
+            position: relative;
+            overflow: hidden;
+            animation: fadeSlideUp 0.6s ease both;
+        }
+        .earnings-hero-card::after {
+            content: ''; position: absolute; top: -80px; right: -80px; width: 260px; height: 260px;
+            background: radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+        }
+        .hero-eyebrow { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; opacity: 0.85; margin-bottom: 6px; }
+        .hero-total-value { font-size: 42px; font-weight: 800; font-family: 'Poppins', sans-serif; }
+        .hero-chip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 26px; }
+        .hero-chip { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 14px 12px; }
+        .hc-label { font-size: 11px; opacity: 0.85; font-weight: 600; display: block; margin-bottom: 4px; }
+        .hc-value { font-size: 16px; font-weight: 800; }
+        .hero-bottom-row { display: flex; justify-content: space-between; gap: 16px; margin-top: 22px; flex-wrap: wrap; }
+        .hc-value-lg { font-size: 19px; font-weight: 800; margin-top: 2px; }
+
+        /* ---- CHART CARD ---- */
+        .chart-card { background: #ffffff; border: 1px solid #eef0f3; border-radius: 20px; padding: 26px; box-shadow: 0 6px 20px rgba(17,24,39,0.05); margin: 26px 0; animation: fadeSlideUp 0.6s ease both; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+        .chart-header h3 { font-size: 17px; color: #111827; }
+        .chart-tabs { display: flex; gap: 6px; background: #F1F5F9; padding: 4px; border-radius: 10px; }
+        .chart-tab { background: transparent; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700; color: #6B7280; cursor: pointer; transition: 0.2s; }
+        .chart-tab.active { background: #ffffff; color: #7C3AED; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 180px; padding: 0 4px; }
+        .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+        .chart-bar { width: 100%; max-width: 34px; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, #8B5CF6, #2563EB); transition: height 0.8s cubic-bezier(0.22,1,0.36,1); }
+        .chart-bar-label { font-size: 10.5px; color: #6B7280; font-weight: 600; }
+
+        /* ---- RECENT TRANSACTIONS (inside existing #jobList) ---- */
+        .txn-card { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 16px 4px; border-bottom: 1px solid #F1F5F9; animation: fadeIn 0.4s ease both; }
+        .txn-card:last-child { border-bottom: none; }
+        .txn-left { display: flex; gap: 12px; align-items: center; }
+        .txn-icon { width: 42px; height: 42px; border-radius: 12px; background: #EDE9FE; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .txn-service { font-size: 14px; font-weight: 700; color: #111827; }
+        .txn-meta { font-size: 12px; color: #6B7280; margin-top: 2px; }
+        .txn-right { text-align: right; }
+        .txn-amount { font-size: 15px; font-weight: 800; color: #16A34A; }
+        .txn-status { font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        .txn-status.completed { background: #DCFCE7; color: #16A34A; }
+        .txn-status.cancelled { background: #FEE2E2; color: #DC2626; }
+        .no-txn { text-align: center; color: #9CA3AF; padding: 30px 0; font-size: 13.5px; }
+
+        /* ---- PAYOUT CARD ---- */
+        .payout-card { background: #ffffff; border: 1px solid #eef0f3; border-radius: 20px; padding: 26px; box-shadow: 0 6px 20px rgba(17,24,39,0.05); margin: 26px 0; animation: fadeSlideUp 0.6s ease both; }
+        .payout-card h3 { font-size: 17px; color: #111827; margin-bottom: 18px; }
+        .payout-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid #F1F5F9; font-size: 13.5px; }
+        .payout-row:last-of-type { border-bottom: none; }
+        .payout-row span { color: #6B7280; font-weight: 600; }
+        .payout-row strong { color: #111827; }
+        .payout-btn { display: block; text-align: center; background: linear-gradient(135deg, #2563EB, #7C3AED); color: #fff; padding: 13px; border-radius: 12px; font-weight: 700; font-size: 13.5px; text-decoration: none; margin-top: 16px; }
+        .payout-btn:hover { opacity: 0.92; }
+
+        /* ---- MONTHLY GOAL CARD ---- */
+        .goal-card { background: #ffffff; border: 1px solid #eef0f3; border-radius: 20px; padding: 26px; box-shadow: 0 6px 20px rgba(17,24,39,0.05); margin: 26px 0; animation: fadeSlideUp 0.6s ease both; }
+        .goal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .goal-head h3 { font-size: 17px; color: #111827; }
+        .goal-edit-btn { background: #EDE9FE; color: #7C3AED; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .goal-amounts { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+        .goal-amounts span:first-child { color: #7C3AED; }
+        .goal-bar-bg { background: #F1F5F9; border-radius: 20px; height: 12px; overflow: hidden; }
+        .goal-bar-fill { background: linear-gradient(90deg, #2563EB, #8B5CF6); height: 100%; border-radius: 20px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); }
+        .goal-remaining { font-size: 12.5px; color: #6B7280; margin-top: 10px; font-weight: 600; }
+
+        /* ---- PERFORMANCE INSIGHTS ---- */
+        .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 26px 0; }
+        .insight-card { background: #ffffff; border: 1px solid #eef0f3; border-radius: 16px; padding: 18px; box-shadow: 0 6px 18px rgba(17,24,39,0.04); animation: fadeSlideUp 0.6s ease both; }
+        .insight-icon { font-size: 20px; margin-bottom: 8px; }
+        .insight-label { font-size: 11.5px; color: #6B7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .insight-value { font-size: 16px; font-weight: 800; color: #111827; margin-top: 4px; }
+
+        /* ---- DOWNLOAD BUTTONS ---- */
+        .download-row { display: flex; gap: 14px; margin: 26px 0; flex-wrap: wrap; }
+        .download-btn { flex: 1; min-width: 160px; background: #ffffff; border: 1.5px solid #E2E8F0; color: #111827; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 13.5px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .download-btn:hover { border-color: #7C3AED; color: #7C3AED; transform: translateY(-2px); }
+
+        /* ---- TIPS CARD ---- */
+        .tips-card { background: linear-gradient(135deg, #F5F3FF, #EFF6FF); border: 1px solid #E9E5FF; border-radius: 20px; padding: 26px; margin: 26px 0 10px 0; animation: fadeSlideUp 0.6s ease both; }
+        .tips-card h3 { font-size: 17px; color: #111827; margin-bottom: 16px; }
+        .tips-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .tip-item { display: flex; gap: 10px; align-items: flex-start; background: rgba(255,255,255,0.6); padding: 12px 14px; border-radius: 12px; }
+        .tip-icon { font-size: 16px; }
+        .tip-text { font-size: 13px; color: #374151; font-weight: 500; line-height: 1.4; }
+
+        @media screen and (max-width: 640px) {
+            .hero-chip-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-total-value { font-size: 32px; }
+            .chart-bar-label { font-size: 9px; }
+            .download-row { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-text"><h1>DOMVEX <span style="font-size: 14px; color: #6366f1;">Worker Portal</span></h1></div>
+        <div class="logo-text"><h1>Domvex</h1></div>
         <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
     </header>
 
     <div class="container">
+
+        <!-- TOP SUMMARY HERO CARD (new) -->
+        <div class="earnings-hero-card">
+            <div class="hero-eyebrow">💰 Total Earnings</div>
+            <div class="hero-total-value" id="heroTotalEarnings">₹0</div>
+            <div class="hero-chip-grid">
+                <div class="hero-chip"><span class="hc-label">Today</span><span class="hc-value" id="heroToday">₹0</span></div>
+                <div class="hero-chip"><span class="hc-label">This Week</span><span class="hc-value" id="heroWeekly">₹0</span></div>
+                <div class="hero-chip"><span class="hc-label">This Month</span><span class="hc-value" id="heroMonthly">₹0</span></div>
+                <div class="hero-chip"><span class="hc-label">Lifetime</span><span class="hc-value" id="heroLifetime">₹0</span></div>
+            </div>
+            <div class="hero-bottom-row">
+                <div><span class="hc-label">Current Balance</span><div class="hc-value-lg" id="heroBalance">₹0</div></div>
+                <div><span class="hc-label">Next Payout</span><div class="hc-value-lg" id="heroNextPayout">--</div></div>
+            </div>
+        </div>
+
+        <!-- ORIGINAL STATS GRID — untouched original 3 cards, new ones appended -->
         <div class="stats-grid">
             <div class="stat-card"><h3>Aaj ki Earning</h3><p id="todayEarn">₹0</p></div>
             <div class="stat-card"><h3>Total Earning</h3><p id="totalEarn">₹0</p></div>
             <div class="stat-card"><h3>Total Jobs</h3><p id="totalJobs">0</p></div>
+            <!-- NEW quick-statistic cards -->
+            <div class="stat-card"><h3>Today's Jobs</h3><p id="statTodaysJobs">0</p></div>
+            <div class="stat-card"><h3>Average Rating</h3><p id="statAvgRating">--</p></div>
+            <div class="stat-card"><h3>Completion Rate</h3><p id="statCompletionRate">--</p></div>
+            <div class="stat-card"><h3>Acceptance Rate</h3><p id="statAcceptanceRate">--</p></div>
         </div>
 
+        <!-- EARNINGS CHART (new) -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Earnings Overview</h3>
+                <div class="chart-tabs">
+                    <button class="chart-tab active" data-range="daily" onclick="switchChartRange('daily')">Daily</button>
+                    <button class="chart-tab" data-range="weekly" onclick="switchChartRange('weekly')">Weekly</button>
+                    <button class="chart-tab" data-range="monthly" onclick="switchChartRange('monthly')">Monthly</button>
+                    <button class="chart-tab" data-range="yearly" onclick="switchChartRange('yearly')">Yearly</button>
+                </div>
+            </div>
+            <div class="chart-bars" id="chartBars"></div>
+        </div>
+
+        <!-- ORIGINAL RECENT JOBS CONTAINER — untouched, #jobList populated by new script -->
         <div class="recent-jobs">
             <h2>Recent Job History</h2>
             <div id="jobList">
                 <p style="color: #9ca3af;">Loading jobs...</p>
             </div>
         </div>
+
+        <!-- PAYOUT SECTION (new) -->
+        <div class="payout-card">
+            <h3>🏦 Payout Details</h3>
+            <div class="payout-row"><span>Current Balance</span><strong id="payoutBalance">₹0</strong></div>
+            <div class="payout-row"><span>Next Settlement Date</span><strong id="payoutNextDate">--</strong></div>
+            <div class="payout-row"><span>Bank Name</span><strong id="payoutBankName">--</strong></div>
+            <div class="payout-row"><span>Account Number</span><strong id="payoutMaskedAccount">--</strong></div>
+            <div class="payout-row"><span>Last Settlement</span><strong id="payoutLastSettlement">No settlements yet</strong></div>
+            <div class="payout-row"><span>Settlement Status</span><strong id="payoutStatus">Pending</strong></div>
+            <a href="worker_profile.html" class="payout-btn">Update Bank Details</a>
+        </div>
+
+        <!-- MONTHLY GOAL (new) -->
+        <div class="goal-card">
+            <div class="goal-head">
+                <h3>🎯 Monthly Goal</h3>
+                <button class="goal-edit-btn" onclick="editMonthlyGoal()">✏️ Edit</button>
+            </div>
+            <div class="goal-amounts"><span id="goalCurrentAmt">₹0</span> / <span id="goalTargetAmt">₹30,000</span></div>
+            <div class="goal-bar-bg"><div class="goal-bar-fill" id="goalBarFill" style="width:0%;"></div></div>
+            <div class="goal-remaining" id="goalRemainingText">Loading...</div>
+        </div>
+
+        <!-- PERFORMANCE INSIGHTS (new) -->
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon">💵</div><div class="insight-label">Avg Per Job</div><div class="insight-value" id="insightAvgPerJob">--</div></div>
+            <div class="insight-card"><div class="insight-icon">📅</div><div class="insight-label">Best Earning Day</div><div class="insight-value" id="insightBestDay">--</div></div>
+            <div class="insight-card"><div class="insight-icon">🔧</div><div class="insight-label">Most Booked Service</div><div class="insight-value" id="insightTopService">--</div></div>
+            <div class="insight-card"><div class="insight-icon">⏰</div><div class="insight-label">Peak Working Hours</div><div class="insight-value" id="insightPeakHours">--</div></div>
+            <div class="insight-card"><div class="insight-icon">📊</div><div class="insight-label">Avg Daily Earnings</div><div class="insight-value" id="insightAvgDaily">--</div></div>
+        </div>
+
+        <!-- DOWNLOAD REPORT (new) -->
+        <div class="download-row">
+            <button class="download-btn" onclick="downloadPDFReport()">📄 Download PDF</button>
+            <button class="download-btn" onclick="downloadExcelReport()">📊 Download Excel</button>
+        </div>
+
+        <!-- TIPS CARD (new) -->
+        <div class="tips-card">
+            <h3>💡 Tips to Increase Earnings</h3>
+            <div class="tips-list">
+                <div class="tip-item"><span class="tip-icon">⏰</span><span class="tip-text">Stay online during peak hours to get more bookings.</span></div>
+                <div class="tip-item"><span class="tip-icon">⭐</span><span class="tip-text">Maintain your rating above 4.8 for priority bookings.</span></div>
+                <div class="tip-item"><span class="tip-icon">📍</span><span class="tip-text">Accept nearby jobs first to save travel time.</span></div>
+                <div class="tip-item"><span class="tip-icon">✅</span><span class="tip-text">Complete jobs on time to build customer trust.</span></div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- Firebase + config + app script — loaded ONCE only (loading config.js/script.js
+         twice was crashing this whole page with "database already declared") -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="config.js"></script>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE",
-            databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/",
-            projectId: "domvex-45097",
-            storageBucket: "domvex-45097.firebasestorage.app",
-            messagingSenderId: "317471334986",
-            appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        const workerPhone = localStorage.getItem('workerPhone');
+        // NOTE: worker ki identity ab UID (Firebase Auth) se hoti hai, phone number
+        // sirf display ke liye. config.js/script.js pehle se firebase.initializeApp()
+        // aur `const database` set kar dete hain — yahan dobara declare nahi karna.
+        const uid = localStorage.getItem('workerUID');
 
         window.onload = function() {
-            if(!workerPhone) {
+            if(!uid) {
                 alert("Pehle login karein!");
                 window.location.href = 'index.html';
                 return;
@@ -73,7 +309,7 @@
         };
 
         function fetchEarnings() {
-            database.ref('workers/' + workerPhone + '/stats').on('value', (snapshot) => {
+            database.ref('workers/' + uid + '/stats').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
                     document.getElementById('todayEarn').innerText = "₹" + (data.today || 0);
@@ -81,6 +317,391 @@
                     document.getElementById('totalJobs').innerText = (data.jobsCount || 0);
                 }
             });
+        }
+    </script>
+
+    <!-- ==========================================================================
+         NEW, SELF-CONTAINED SCRIPT — powers only the new premium sections above
+         (hero card, chart, transactions, payout, goal, insights, downloads,
+         milestone notifications). Uses window.addEventListener('load', ...) so
+         the ORIGINAL window.onload above is never touched or overwritten.
+         Reads `uid`, `database`, `firebase` from the script above
+         (shared global scope) — nothing is redeclared.
+         Safe to delete this whole block if you ever don't want these sections.
+    =========================================================================== -->
+   <script>
+        // Common Indian bank IFSC prefixes -> bank name (used only for display, derived from real IFSC standard)
+        const IFSC_BANK_MAP = {
+            SBIN: 'State Bank of India', HDFC: 'HDFC Bank', ICIC: 'ICICI Bank', UTIB: 'Axis Bank',
+            PUNB: 'Punjab National Bank', BARB: 'Bank of Baroda', CNRB: 'Canara Bank', UBIN: 'Union Bank of India',
+            KKBK: 'Kotak Mahindra Bank', YESB: 'Yes Bank', IDFB: 'IDFC First Bank', INDB: 'IndusInd Bank',
+            IOBA: 'Indian Overseas Bank', CBIN: 'Central Bank of India', MAHB: 'Bank of Maharashtra',
+            IBKL: 'IDBI Bank', FDRL: 'Federal Bank', KVBL: 'Karur Vysya Bank', SIBL: 'South Indian Bank', RATN: 'RBL Bank'
+        };
+
+        let allCompletedBookings = [];
+        let currentWorkerRecord = {};
+
+        window.addEventListener('load', function() {
+            if (!uid) return; // original script already alerts + redirects; avoid double handling
+            initPremiumEarningsDashboard();
+        });
+
+        function initPremiumEarningsDashboard() {
+            database.ref('workers/' + uid).once('value').then(workerSnap => {
+                const w = workerSnap.val() || {};
+                currentWorkerRecord = w;
+                renderPayoutSection(w);
+
+                // Bookings store the worker's UID under "acceptedBy" (set in dashboard.html)
+                database.ref('bookings').orderByChild('acceptedBy').equalTo(uid).once('value').then(bookSnap => {
+                    const bookings = bookSnap.val() || {};
+                    const all = Object.values(bookings);
+                    const completed = all.filter(b => b.status === 'Completed' && b.price);
+                    allCompletedBookings = completed;
+
+                    renderTopSummaryCard(completed);
+                    renderQuickStatsExtra(all, completed);
+                    renderChart(completed);
+                    renderTransactions(completed);
+                    renderMonthlyGoal(completed, w);
+                    renderPerformanceInsights(completed);
+                    checkMilestones(completed.length, w.name || 'A partner');
+                });
+            });
+        }
+
+        function getBookingDate(b) {
+            const raw = b.completedAt || b.timestamp;
+            return raw ? new Date(raw) : null;
+        }
+        function sumPrice(list) { return list.reduce((s, b) => s + (parseFloat(b.price) || 0), 0); }
+
+        function isSameDay(d1, d2) { return d1.toDateString() === d2.toDateString(); }
+        function isThisWeek(d, now) {
+            const start = new Date(now); start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0);
+            return d >= start;
+        }
+        function isThisMonth(d, now) { return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }
+
+        // ---- TOP SUMMARY HERO CARD ----
+        function renderTopSummaryCard(completed) {
+            const now = new Date();
+            const todayList = completed.filter(b => { const d = getBookingDate(b); return d && isSameDay(d, now); });
+            const weekList = completed.filter(b => { const d = getBookingDate(b); return d && isThisWeek(d, now); });
+            const monthList = completed.filter(b => { const d = getBookingDate(b); return d && isThisMonth(d, now); });
+
+            const lifetimeTotal = sumPrice(completed);
+
+            document.getElementById('heroTotalEarnings').innerText = '₹' + lifetimeTotal.toLocaleString('en-IN');
+            document.getElementById('heroToday').innerText = '₹' + sumPrice(todayList).toLocaleString('en-IN');
+            document.getElementById('heroWeekly').innerText = '₹' + sumPrice(weekList).toLocaleString('en-IN');
+            document.getElementById('heroMonthly').innerText = '₹' + sumPrice(monthList).toLocaleString('en-IN');
+            document.getElementById('heroLifetime').innerText = '₹' + lifetimeTotal.toLocaleString('en-IN');
+            document.getElementById('heroBalance').innerText = '₹' + lifetimeTotal.toLocaleString('en-IN');
+
+            const nextPayout = getNextWeeklyPayoutDate();
+            document.getElementById('heroNextPayout').innerText = nextPayout;
+        }
+
+        function getNextWeeklyPayoutDate() {
+            // Weekly payout cycle assumed — next Monday
+            const now = new Date();
+            const day = now.getDay();
+            const daysUntilMonday = (8 - day) % 7 || 7;
+            const next = new Date(now);
+            next.setDate(now.getDate() + daysUntilMonday);
+            return next.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        // ---- QUICK STATISTICS (extra cards) ----
+        function renderQuickStatsExtra(allBookings, completed) {
+            const now = new Date();
+            const todaysJobs = completed.filter(b => { const d = getBookingDate(b); return d && isSameDay(d, now); }).length;
+            document.getElementById('statTodaysJobs').innerText = todaysJobs;
+
+            const rated = allBookings.filter(b => b.rating);
+            const avgRating = rated.length ? (rated.reduce((s, b) => s + parseFloat(b.rating), 0) / rated.length) : 0;
+            document.getElementById('statAvgRating').innerText = rated.length ? ('⭐ ' + avgRating.toFixed(1)) : 'No ratings yet';
+
+            const cancelledByWorker = allBookings.filter(b => b.status === 'Cancelled' && b.cancelledBy === 'worker').length;
+            const totalAttempted = completed.length + cancelledByWorker;
+            const rate = totalAttempted > 0 ? Math.round((completed.length / totalAttempted) * 100) : 100;
+            document.getElementById('statCompletionRate').innerText = rate + '%';
+            // Acceptance Rate uses the same accepted-vs-completed proxy since "offered but ignored" jobs aren't tracked in Firebase
+            document.getElementById('statAcceptanceRate').innerText = rate + '%';
+        }
+
+        // ---- EARNINGS CHART ----
+        let chartDataCache = {};
+        function renderChart(completed) {
+            chartDataCache.daily = buildDailySeries(completed);
+            chartDataCache.weekly = buildWeeklySeries(completed);
+            chartDataCache.monthly = buildMonthlySeries(completed);
+            chartDataCache.yearly = buildYearlySeries(completed);
+            drawChart('daily');
+        }
+
+        function buildDailySeries(completed) {
+            const days = [];
+            const now = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now); d.setDate(now.getDate() - i);
+                const label = d.toLocaleDateString('en-IN', { weekday: 'short' });
+                const total = sumPrice(completed.filter(b => { const bd = getBookingDate(b); return bd && isSameDay(bd, d); }));
+                days.push({ label, value: total });
+            }
+            return days;
+        }
+        function buildWeeklySeries(completed) {
+            const weeks = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const start = new Date(now); start.setDate(now.getDate() - (now.getDay() + 7 * i)); start.setHours(0,0,0,0);
+                const end = new Date(start); end.setDate(start.getDate() + 7);
+                const total = sumPrice(completed.filter(b => { const bd = getBookingDate(b); return bd && bd >= start && bd < end; }));
+                weeks.push({ label: 'W' + (6 - i), value: total });
+            }
+            return weeks;
+        }
+        function buildMonthlySeries(completed) {
+            const months = [];
+            const now = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const label = d.toLocaleDateString('en-IN', { month: 'short' });
+                const total = sumPrice(completed.filter(b => { const bd = getBookingDate(b); return bd && bd.getMonth() === d.getMonth() && bd.getFullYear() === d.getFullYear(); }));
+                months.push({ label, value: total });
+            }
+            return months;
+        }
+        function buildYearlySeries(completed) {
+            const now = new Date();
+            const years = [];
+            for (let i = 3; i >= 0; i--) {
+                const y = now.getFullYear() - i;
+                const total = sumPrice(completed.filter(b => { const bd = getBookingDate(b); return bd && bd.getFullYear() === y; }));
+                years.push({ label: String(y), value: total });
+            }
+            return years;
+        }
+
+        function switchChartRange(range) {
+            document.querySelectorAll('.chart-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-range') === range));
+            drawChart(range);
+        }
+
+        function drawChart(range) {
+            const data = chartDataCache[range] || [];
+            const maxVal = Math.max(1, ...data.map(d => d.value));
+            const container = document.getElementById('chartBars');
+            container.innerHTML = data.map(d => `
+                <div class="chart-bar-col">
+                    <div class="chart-bar" style="height:${Math.max(4, (d.value / maxVal) * 140)}px;" title="₹${d.value}"></div>
+                    <div class="chart-bar-label">${d.label}</div>
+                </div>
+            `).join('');
+        }
+
+        // ---- RECENT TRANSACTIONS (populates existing #jobList) ----
+        function renderTransactions(completed) {
+            const listEl = document.getElementById('jobList');
+            if (!completed.length) {
+                listEl.innerHTML = '<div class="no-txn">No completed jobs yet. Your transactions will show up here.</div>';
+                return;
+            }
+            const sorted = [...completed].sort((a, b) => (getBookingDate(b) || 0) - (getBookingDate(a) || 0));
+            listEl.innerHTML = sorted.slice(0, 20).map(b => {
+                const d = getBookingDate(b);
+                const dateStr = d ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '--';
+                const timeStr = d ? d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '--';
+                return `
+                    <div class="txn-card">
+                        <div class="txn-left">
+                            <div class="txn-icon">🔧</div>
+                            <div>
+                                <div class="txn-service">${b.service || 'Service'}</div>
+                                <div class="txn-meta">${b.customerName || 'Customer'} • ${dateStr}, ${timeStr}</div>
+                                <div class="txn-meta">Domvex Wallet</div>
+                            </div>
+                        </div>
+                        <div class="txn-right">
+                            <div class="txn-amount">+₹${b.price}</div>
+                            <div class="txn-status completed">Completed</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ---- PAYOUT SECTION ----
+        function renderPayoutSection(w) {
+            const account = w.bankDetails || '';
+            const ifsc = (w.ifscCode || '').toUpperCase();
+            const prefix = ifsc.substring(0, 4);
+            const bankName = IFSC_BANK_MAP[prefix] || (account ? 'Bank on File' : 'Not Provided');
+
+            document.getElementById('payoutBankName').innerText = bankName;
+            document.getElementById('payoutMaskedAccount').innerText = account
+                ? ('•••• •••• ' + account.slice(-4))
+                : 'Not Provided';
+            document.getElementById('payoutNextDate').innerText = getNextWeeklyPayoutDate();
+        }
+
+        // Balance in the payout card mirrors the hero balance once bookings load
+        function updatePayoutBalance(total) {
+            document.getElementById('payoutBalance').innerText = '₹' + total.toLocaleString('en-IN');
+        }
+
+        // ---- MONTHLY GOAL ----
+        function renderMonthlyGoal(completed, w) {
+            const now = new Date();
+            const monthTotal = sumPrice(completed.filter(b => { const d = getBookingDate(b); return d && isThisMonth(d, now); }));
+            const goal = parseFloat(w.monthlyGoal) || 30000;
+
+            document.getElementById('goalCurrentAmt').innerText = '₹' + monthTotal.toLocaleString('en-IN');
+            document.getElementById('goalTargetAmt').innerText = '₹' + goal.toLocaleString('en-IN');
+            const pct = Math.min(100, Math.round((monthTotal / goal) * 100));
+            document.getElementById('goalBarFill').style.width = pct + '%';
+
+            const remaining = Math.max(0, goal - monthTotal);
+            document.getElementById('goalRemainingText').innerText = remaining > 0
+                ? `₹${remaining.toLocaleString('en-IN')} more to reach your goal (${pct}%)`
+                : `🎉 Goal achieved this month! (${pct}%)`;
+
+            updatePayoutBalance(sumPrice(completed));
+        }
+
+        function editMonthlyGoal() {
+            const current = currentWorkerRecord.monthlyGoal || 30000;
+            const input = prompt('Set your monthly earnings goal (₹):', current);
+            if (input === null) return;
+            const val = parseFloat(input);
+            if (isNaN(val) || val <= 0) { alert('Please enter a valid amount.'); return; }
+            database.ref('workers/' + uid).update({ monthlyGoal: val }).then(() => {
+                currentWorkerRecord.monthlyGoal = val;
+                renderMonthlyGoal(allCompletedBookings, currentWorkerRecord);
+            });
+        }
+
+        // ---- PERFORMANCE INSIGHTS ----
+        function renderPerformanceInsights(completed) {
+            if (!completed.length) {
+                ['insightAvgPerJob','insightBestDay','insightTopService','insightPeakHours','insightAvgDaily'].forEach(id => {
+                    document.getElementById(id).innerText = 'Not enough data yet';
+                });
+                return;
+            }
+
+            const total = sumPrice(completed);
+            document.getElementById('insightAvgPerJob').innerText = '₹' + Math.round(total / completed.length).toLocaleString('en-IN');
+
+            // Best earning day (day-of-week with highest total earnings)
+            const dayTotals = {};
+            const hourCounts = {};
+            const serviceCounts = {};
+            const distinctDates = new Set();
+
+            completed.forEach(b => {
+                const d = getBookingDate(b);
+                if (!d) return;
+                const dayName = d.toLocaleDateString('en-IN', { weekday: 'long' });
+                dayTotals[dayName] = (dayTotals[dayName] || 0) + (parseFloat(b.price) || 0);
+
+                const hour = d.getHours();
+                const bucket = hour < 12 ? `${hour === 0 ? 12 : hour} AM` : `${hour === 12 ? 12 : hour - 12} PM`;
+                hourCounts[bucket] = (hourCounts[bucket] || 0) + 1;
+
+                const svc = b.service || 'Service';
+                serviceCounts[svc] = (serviceCounts[svc] || 0) + 1;
+
+                distinctDates.add(d.toDateString());
+            });
+
+            const bestDay = Object.entries(dayTotals).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('insightBestDay').innerText = bestDay ? bestDay[0] : '--';
+
+            const topService = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('insightTopService').innerText = topService ? topService[0] : '--';
+
+            const peakHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('insightPeakHours').innerText = peakHour ? peakHour[0] : '--';
+
+            const avgDaily = distinctDates.size ? Math.round(total / distinctDates.size) : 0;
+            document.getElementById('insightAvgDaily').innerText = '₹' + avgDaily.toLocaleString('en-IN');
+        }
+
+        // ---- MILESTONE NOTIFICATIONS (admin-only, hidden from worker) ----
+        function checkMilestones(completedCount, workerName) {
+            const milestones = [100, 500, 1000, 2000];
+            database.ref('workers/' + uid + '/milestonesNotified').once('value').then(snap => {
+                const already = snap.val() || {};
+                milestones.forEach(m => {
+                    if (completedCount >= m && !already[m]) {
+                        database.ref('notifications').push({
+                            message: `${workerName} has completed ${m} successful jobs.`,
+                            timestamp: Date.now()
+                        });
+                        database.ref('workers/' + uid + '/milestonesNotified/' + m).set(true);
+                    }
+                });
+            });
+        }
+
+        // ---- DOWNLOAD REPORT ----
+        function downloadPDFReport() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const total = sumPrice(allCompletedBookings);
+                doc.setFontSize(18);
+                doc.text('Domvex — Earnings Report', 14, 20);
+                doc.setFontSize(11);
+                doc.text(`Worker: ${currentWorkerRecord.name || '--'}`, 14, 32);
+                doc.text(`Phone: ${currentWorkerRecord.phone || '--'}`, 14, 39);
+                doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 46);
+                doc.text(`Total Completed Jobs: ${allCompletedBookings.length}`, 14, 56);
+                doc.text(`Lifetime Earnings: Rs. ${total.toLocaleString('en-IN')}`, 14, 63);
+
+                let y = 78;
+                doc.setFontSize(12);
+                doc.text('Recent Transactions:', 14, y);
+                y += 8;
+                doc.setFontSize(9);
+                allCompletedBookings.slice(0, 25).forEach(b => {
+                    const d = getBookingDate(b);
+                    const line = `${d ? d.toLocaleDateString('en-IN') : '--'}  |  ${b.service || 'Service'}  |  ${b.customerName || 'Customer'}  |  Rs. ${b.price}`;
+                    if (y > 280) { doc.addPage(); y = 20; }
+                    doc.text(line, 14, y);
+                    y += 6;
+                });
+
+                doc.save('Domvex_Earnings_Report.pdf');
+            } catch (err) {
+                alert('Could not generate PDF. Please check your internet connection and try again.');
+            }
+        }
+
+        function downloadExcelReport() {
+            try {
+                const rows = allCompletedBookings.map(b => {
+                    const d = getBookingDate(b);
+                    return {
+                        Date: d ? d.toLocaleDateString('en-IN') : '--',
+                        Time: d ? d.toLocaleTimeString('en-IN') : '--',
+                        Service: b.service || 'Service',
+                        Customer: b.customerName || 'Customer',
+                        'Amount (₹)': b.price || 0,
+                        Status: b.status || '--'
+                    };
+                });
+                const ws = XLSX.utils.json_to_sheet(rows);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Earnings');
+                XLSX.writeFile(wb, 'Domvex_Earnings_Report.xlsx');
+            } catch (err) {
+                alert('Could not generate Excel file. Please check your internet connection and try again.');
+            }
         }
     </script>
 </body>

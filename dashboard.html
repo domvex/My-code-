@@ -65,52 +65,48 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="config.js"></script>
 
 <script src="script.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE",
-            authDomain: "domvex-45097.firebaseapp.com",
-            databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/",
-            projectId: "domvex-45097",
-            storageBucket: "domvex-45097.firebasestorage.app",
-            messagingSenderId: "317471334986",
-            appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
+        // NOTE: worker ka identity ab UID se hoti hai (Firebase Auth), phone number
+        // sirf calling/contact ke liye use hota hai — login pehchaan ke liye nahi.
         let mySkill = "";
         let myName = "";
         let myPhoto = "";
-        const phone = localStorage.getItem('workerPhone');
+        let myPhone = "";
+        const uid = localStorage.getItem('workerUID');
 
         const trackers = {};
         const maps = {};
         const markers = {};
 
         window.onload = function() {
-            if (!phone) {
+            if (!uid) {
                 alert("Access Denied! Login required.");
                 window.location.href = 'index.html';
                 return;
             }
-            database.ref('workers/' + phone).once('value', (snap) => {
+            database.ref('workers/' + uid).once('value', (snap) => {
                 if(snap.exists()) {
                     const w = snap.val();
                     mySkill = w.skill;
                     myName = w.name;
                     myPhoto = w.workerPhoto || '';
+                    myPhone = w.phone || '';
                     loadBookings();
                     loadRating();
+                } else {
+                    alert("Worker profile not found. Please contact support.");
+                    window.location.href = 'index.html';
                 }
             });
         };
 
         function loadRating() {
-            database.ref('workers/' + phone + '/ratings').on('value', (snap) => {
+            database.ref('workers/' + uid + '/ratings').on('value', (snap) => {
                 let total = 0, count = 0;
                 snap.forEach(r => { total += parseInt(r.val().rating); count++; });
                 document.getElementById('myRating').innerText = count > 0 ? (total/count).toFixed(1) : "0.0";
@@ -190,7 +186,7 @@
                 snap.forEach((child) => {
                     const data = child.val();
                     const id = child.key;
-                    const isMyAccepted = (data.status === 'Accepted' && data.acceptedBy === phone);
+                    const isMyAccepted = (data.status === 'Accepted' && data.acceptedBy === uid);
                     const isAvailable = (data.status === 'Pending' && data.service === mySkill);
                     if(isMyAccepted || isAvailable) {
                         found = true;
@@ -220,7 +216,7 @@
                 snap.forEach((child) => {
                     const data = child.val();
                     const id = child.key;
-                    if (data.status === 'Accepted' && data.acceptedBy === phone) {
+                    if (data.status === 'Accepted' && data.acceptedBy === uid) {
                         initMap(id);
                         startSharingLocation(id);
                         database.ref('bookings/' + id + '/customerLocation').on('value', csnap => {
@@ -237,10 +233,10 @@
             if (newStatus === 'Accepted') {
                 database.ref('bookings/' + id).update({
                     status: 'Accepted',
-                    acceptedBy: phone,
+                    acceptedBy: uid,
                     workerName: myName,
                     workerPhoto: myPhoto,
-                    workerPhone: phone
+                    workerPhone: myPhone
                 }).then(() => {
                     startSharingLocation(id);
                     alert("Booking Accepted!");
@@ -269,7 +265,12 @@
             }).then(() => alert("Booking cancelled and returned to the pool."));
         }
 
-        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+        function logout() {
+            firebase.auth().signOut().finally(() => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            });
+        }
 
         database.ref('workers').on('value', (snap) => {
             const container = document.getElementById('liveWorkers');
@@ -280,7 +281,7 @@
             });
         });
 
-        if (localStorage.getItem('workerPhone') && !localStorage.getItem('isRegistered')) {
+        if (localStorage.getItem('workerUID') && !localStorage.getItem('isRegistered')) {
             window.location.href = 'terms.html';
         }
 

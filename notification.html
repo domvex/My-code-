@@ -22,6 +22,48 @@
     .notif-card .msg { font-size: 14px; color: #0f172a; font-weight: 600; line-height: 1.5; }
     .notif-card .time { font-size: 12px; color: #94a3b8; margin-top: 8px; }
     .empty-state { text-align:center; padding:80px 20px; color:#94a3b8; font-size:14px; }
+
+    /* ===== LIVE TOAST POP-UP (Rapido / Meesho style) ===== */
+    .toast-stack {
+        position: fixed;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92%;
+        max-width: 420px;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+    .toast-item {
+        background: #0f172a;
+        color: #ffffff;
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        animation: toastSlideDown 0.35s cubic-bezier(0.22,1,0.36,1) both, toastFadeOut 0.4s ease 3.6s forwards;
+        pointer-events: auto;
+    }
+    .toast-icon {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: linear-gradient(135deg,#38bdf8,#6d28d9);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; flex-shrink: 0;
+    }
+    .toast-text { font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+    @keyframes toastSlideDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
 </style>
 </head>
 <body>
@@ -31,18 +73,20 @@
     <h2>Notifications</h2>
 </div>
 
+<!-- Live pop-up toasts render here, on top of everything -->
+<div class="toast-stack" id="toastStack"></div>
+
 <div id="notifList"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="config.js"></script>
-
 <script src="script.js"></script>
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const database = firebase.database();
+    // NOTE: config.js/script.js pehle se firebase.initializeApp() aur `const database`
+    // set kar dete hain — yahan dobara declare nahi karna (purana duplicate bug tha).
 
+    // ---- Existing list rendering (newest on top) ----
     database.ref('notifications').orderByChild('timestamp').on('value', snap => {
         const list = document.getElementById('notifList');
         list.innerHTML = '';
@@ -65,6 +109,49 @@
             `;
         });
     });
+
+    // ===================================================================
+    // LIVE TOAST POP-UP — shows a Rapido/Meesho-style banner the moment a
+    // new notification is pushed, without waiting for page refresh.
+    // We first record the latest existing timestamp as a baseline, then
+    // only fire a toast for notifications newer than that baseline —
+    // otherwise every old notification would pop up a toast on page load.
+    // ===================================================================
+    let notificationBaselineTimestamp = 0;
+
+    database.ref('notifications').orderByChild('timestamp').once('value').then(snap => {
+        snap.forEach(child => {
+            const v = child.val();
+            if (v.timestamp && v.timestamp > notificationBaselineTimestamp) {
+                notificationBaselineTimestamp = v.timestamp;
+            }
+        });
+
+        // Now start listening for genuinely new notifications
+        database.ref('notifications').orderByChild('timestamp').on('child_added', childSnap => {
+            const n = childSnap.val();
+            if (n.timestamp && n.timestamp > notificationBaselineTimestamp) {
+                showToast(n.message);
+            }
+        });
+    });
+
+    function showToast(message) {
+        const stack = document.getElementById('toastStack');
+        const toast = document.createElement('div');
+        toast.className = 'toast-item';
+        toast.innerHTML = `
+            <div class="toast-icon">🔔</div>
+            <div class="toast-text">${message}</div>
+        `;
+        stack.appendChild(toast);
+
+        // Small vibration on supported mobile devices, harmless if unsupported
+        if (navigator.vibrate) { navigator.vibrate(80); }
+
+        // Remove from DOM after the fade-out animation finishes (~4s total)
+        setTimeout(() => { toast.remove(); }, 4000);
+    }
 </script>
 </body>
 </html>

@@ -4,32 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domvex - Premium Home Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Segoe UI', Arial, sans-serif; }
         body { background-color: #f4f6f9; color: #1e293b; scroll-behavior: smooth; padding-bottom: 60px; }
         
-        /* PREMIUM HEADER (LIGHT THEME) */
-        header { padding: 25px 6%; display: flex; align-items: center; justify-content: space-between; background: transparent; position: absolute; width: 100%; top: 0; left: 0; z-index: 100; }
-        .logo-img { height: 80px; width: auto; display: block; object-fit: contain; }
-        .nav-buttons { display: flex; gap: 15px; }
+        /* PREMIUM HEADER (LIGHT THEME) - now sticky so it never disappears on scroll */
+        header { padding: 18px 6%; display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); position: sticky; top: 0; left: 0; width: 100%; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .logo-img { height: 55px; width: auto; display: block; object-fit: contain; }
+        .nav-buttons { display: flex; align-items: center; gap: 15px; }
         .nav-link-btn { background: transparent; color: #1e293b; border: none; font-size: 14px; font-weight: 600; cursor: pointer; padding: 8px 16px; transition: 0.2s; text-decoration: none; }
         .nav-link-btn.accent { background: #6d28d9; color: white; border-radius: 6px; padding: 8px 18px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2); }
         .nav-link-btn:hover { opacity: 0.8; }
 
+        /* LOCATION SELECTOR (in header) */
+        .location-pill { display: flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 20px; padding: 7px 14px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: #334155; }
+        .location-pill:hover { background: #e2e8f0; }
+
         /* HERO & BANNER AREA WITH BACKGROUND IMAGE */
-        .hero-banner { background: linear-gradient(rgba(244, 246, 249, 0.6), rgba(244, 246, 249, 0.95)), url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200') no-repeat center center/cover; height: 530px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 20px; position: relative; }
+        .hero-banner { background: linear-gradient(rgba(244, 246, 249, 0.6), rgba(244, 246, 249, 0.95)), url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200') no-repeat center center/cover; min-height: 500px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 20px; position: relative; }
         
         /* SEARCH BAR (LIGHT THEME) */
-        .search-container { position: relative; width: 100%; max-width: 550px; margin-bottom: 35px; margin-top: 50px; }
+        .search-container { position: relative; width: 100%; max-width: 550px; margin-bottom: 35px; margin-top: 25px; }
         .search-container input { width: 100%; padding: 16px 25px; border-radius: 6px; border: none; background: #ffffff; color: #1e293b; font-size: 14px; outline: none; border: 1px solid rgba(0,0,0,0.1); text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-container input::placeholder { color: #94a3b8; }
 
-        .hero-banner h2 { font-size: 40px; font-weight: 800; line-height: 1.3; margin-bottom: 15px; letter-spacing: 0.5px; color: #0f172a; }
+        .hero-banner h2 { font-size: 40px; font-weight: 800; line-height: 1.3; margin-bottom: 15px; letter-spacing: 0.3px; color: #0f172a; }
         .hero-banner p { color: #475569; font-size: 15px; margin-bottom: 30px; max-width: 650px; }
         
         /* ORIGINAL PURPLE HERO BUTTON */
         .book-service-now-btn { background: #9b51e0; color: white; border: none; padding: 14px 30px; border-radius: 6px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(155, 81, 224, 0.3); }
         .book-service-now-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        /* TRUST STRIP under hero */
+        .trust-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; margin-top: 30px; padding: 0 20px; }
+        .trust-strip-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #334155; }
+        .trust-strip-item .icon { font-size: 18px; }
 
         /* FLOATING QUICK GRID Image (LIGHT THEME) */
         .services-quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
@@ -38,6 +50,16 @@
 .quick-box img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; transition: transform 0.3s ease; }
 .quick-box:hover img { transform: scale(1.05); }
 .quick-box .card-rating { color: #f59e0b; font-size: 11.5px; font-weight: 700; margin-top: 4px; }
+.quick-box .card-reviews { color: #94a3b8; font-size: 10.5px; font-weight: 500; margin-top: 2px; }
+.quick-box .verified-badge { display: inline-flex; align-items: center; gap: 3px; background: #ecfdf5; color: #059669; font-size: 9.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-top: 6px; }
+
+        /* HOW IT WORKS */
+        .how-it-works { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin: 30px 0; }
+        .how-step { background: #ffffff; padding: 28px 22px; border-radius: 14px; text-align: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .how-step .step-num { width: 34px; height: 34px; background: #6d28d9; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin: 0 auto 14px auto; }
+        .how-step .step-icon { font-size: 30px; margin-bottom: 10px; }
+        .how-step h4 { font-size: 15px; color: #0f172a; margin-bottom: 8px; }
+        .how-step p { font-size: 12.5px; color: #64748b; line-height: 1.5; }
 
         /* NEW: WHY CHOOSE US SECTION */
         .why-choose-us { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 40px 0; }
@@ -63,6 +85,15 @@
         .rate-list-link { color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-top: 5px; text-decoration: none; display: inline-block; width: fit-content; transition: 0.2s; }
         .rate-list-link:hover { color: #0284c7; text-decoration: underline; }
 
+        /* FAQ SECTION */
+        .faq-wrap { max-width: 800px; margin: 0 auto; }
+        .faq-item { background: #ffffff; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden; }
+        .faq-item summary { padding: 18px 22px; cursor: pointer; font-weight: 600; font-size: 14px; color: #0f172a; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after { content: '+'; font-size: 20px; color: #6d28d9; font-weight: 700; }
+        .faq-item[open] summary::after { content: '−'; }
+        .faq-item p { padding: 0 22px 20px 22px; font-size: 13px; color: #64748b; line-height: 1.6; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 99999; display: none; justify-content: center; align-items: center; }
         .modal-box { background: #ffffff; border: 1px solid #e2e8f0; padding: 45px 35px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); color: #1e293b; }
         .modal-box h3 { font-size: 22px; margin-bottom: 25px; text-align: center; font-weight: 700; color: #0f172a; }
@@ -75,12 +106,14 @@
         .cust-submit { background: #0284c7; color: white; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
         .work-submit { background: #6d28d9; color: white; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2); }
         .toggle-form-text { display: block; text-align: center; margin-top: 15px; font-size: 12px; color: #64748b; cursor: pointer; }
+        .forgot-pass-text { display: block; text-align: right; margin-top: 8px; font-size: 12px; color: #0284c7; cursor: pointer; font-weight: 600; }
+        .forgot-pass-text:hover { text-decoration: underline; }
 
         /* --- PREMIUM MOBILE & TABLET RESPONSIVE --- */
         @media screen and (max-width: 768px) {
             header { padding: 15px 5% !important; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
             .logo-img { height: 40px !important; }
-            .hero-banner { padding: 100px 20px 40px 20px !important; border-radius: 0 0 40px 40px !important; }
+            .hero-banner { padding: 40px 20px 40px 20px !important; border-radius: 0 0 40px 40px !important; }
             .hero-banner h2 { font-size: 28px !important; margin-bottom: 20px !important; }
             .search-container { margin-top: 10px !important; }
             .search-container input { padding: 14px 20px !important; font-size: 13px !important; }
@@ -89,6 +122,9 @@
             .quick-box:active { transform: scale(0.92); }
             .quick-box img { height: 60px !important; border-radius: 12px !important; }
             .quick-box span { font-size: 11px !important; font-weight: 600; }
+            .trust-strip { gap: 16px !important; }
+            .trust-strip-item { font-size: 11.5px !important; }
+            .location-pill { font-size: 11.5px !important; padding: 6px 10px !important; }
         }
 
         /* Naya Hamburger Style */
@@ -388,6 +424,23 @@
             align-items: center;
             font-size: 14px;
         }
+
+        /* ===== NEW PREMIUM FOOTER ===== */
+        .site-footer { background: #0f172a; color: #cbd5e1; padding: 60px 6% 30px 6%; margin-top: 80px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; padding-bottom: 35px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .footer-col h4 { color: #ffffff; font-size: 15px; margin-bottom: 16px; font-weight: 700; }
+        .footer-col a { display: block; color: #94a3b8; text-decoration: none; font-size: 13px; margin-bottom: 10px; transition: 0.2s; }
+        .footer-col a:hover { color: #ffffff; }
+        .footer-col p { color: #94a3b8; font-size: 13px; margin-bottom: 10px; line-height: 1.7; }
+        .footer-social { display: flex; gap: 12px; margin-top: 8px; }
+        .footer-social a { width: 36px; height: 36px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 0; }
+        .footer-social a:hover { background: #6d28d9; }
+        .footer-bottom { max-width: 1200px; margin: 25px auto 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; color: #64748b; }
+        @media screen and (max-width: 768px) {
+            .site-footer { padding: 45px 6% 25px 6%; }
+            .footer-bottom { justify-content: center; text-align: center; }
+        }
+        /* ===== END NEW PREMIUM FOOTER ===== */
         
     </style>
 </head>
@@ -397,6 +450,11 @@
         <a href="index.html" class="logo">
             <img src="logo.jpg" alt="Domvex Logo" class="logo-img">
         </a>
+
+        <!-- Location Selector - Auto-detects user's area via browser GPS (free) -->
+        <div class="location-pill" id="locationPill" onclick="detectLocation()">
+            📍 <span id="locationText">Detecting location...</span>
+        </div>
         
         <!-- Desktop Buttons -->
         <div class="nav-buttons" id="navAuthButtons">
@@ -428,6 +486,13 @@
         <p>Get verified, premium home services right at your doorstep with transparent flat rates.</p>
         
         <button class="book-service-now-btn" onclick="openModal('customerModal')">Book a Service Now</button>
+
+        <!-- Trust Strip -->
+        <div class="trust-strip">
+            <div class="trust-strip-item"><span class="icon">✅</span> 25,000+ Verified Bookings</div>
+            <div class="trust-strip-item"><span class="icon">🛡️</span> 10-Day Service Warranty</div>
+            <div class="trust-strip-item"><span class="icon">⭐</span> 4.8 Average Rating</div>
+        </div>
     </div>
 
     <!-- UPDATED PREMIUM GRID -->
@@ -436,43 +501,58 @@
             <img src="electrician.jpg" alt="Electrician">
             <span>Electrician</span>
             <div class="card-rating">⭐ 4.8</div>
+            <div class="card-reviews">2,140 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Plumber')" class="quick-box">
             <img src="plumber.jpg" alt="Plumber">
             <span>Plumber</span>
             <div class="card-rating">⭐ 4.7</div>
+            <div class="card-reviews">1,860 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('AC Technician')" class="quick-box">
             <img src="ac_technician.jpg" alt="AC Technician">
             <span>AC Technician</span>
             <div class="card-rating">⭐ 4.8</div>
+            <div class="card-reviews">3,020 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Cleaning')" class="quick-box">
             <img src="cleaning.jpg" alt="Cleaning">
             <span>Cleaning</span>
             <div class="card-rating">⭐ 4.6</div>
+            <div class="card-reviews">1,410 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Painting')" class="quick-box">
             <img src="painting.jpg" alt="Painting">
             <span>Painting</span>
             <div class="card-rating">⭐ 4.6</div>
+            <div class="card-reviews">960 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Beauty/Spa')" class="quick-box">
             <img src="beauty_spa.jpg" alt="Beauty/Spa">
             <span>Beauty/Spa</span>
             <div class="card-rating">⭐ 4.8</div>
+            <div class="card-reviews">2,570 bookings</div>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Laptop Repair')" class="quick-box">
             <img src="laptop_repair.jpg" alt="Laptop Repair">
             <span>Laptop Repair</span>
+            <div class="verified-badge">✔ Verified</div>
         </a>
         <a href="#" onclick="handleCategoryClick('Physiotherapist')" class="quick-box">
             <img src="physiotherapist.jpg" alt="Physiotherapist">
             <span>Physiotherapist</span>
+            <div class="verified-badge">✔ Verified</div>
         </a>
     </div>
 
     <div class="sections-wrapper">
+
         <div class="section-title-row"><h3>Why Choose Domvex?</h3></div>
         <div class="why-choose-us">
             <div class="feature-card">
@@ -527,6 +607,28 @@
                 <a href="rates.html" class="rate-list-link">📄 VIEW FULL RATE LIST</a>
             </div>
         </div>
+
+        <div class="section-title-row"><h3>How Domvex Works</h3></div>
+        <div class="how-it-works">
+            <div class="how-step">
+                <div class="step-num">1</div>
+                <div class="step-icon">📱</div>
+                <h4>Book a Service</h4>
+                <p>Choose your service, tell us your problem, and pick a convenient time slot.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-num">2</div>
+                <div class="step-icon">🧑‍🔧</div>
+                <h4>Expert Arrives</h4>
+                <p>A verified, background-checked professional reaches your doorstep, usually within 2 hours.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-num">3</div>
+                <div class="step-icon">✅</div>
+                <h4>Pay After Service</h4>
+                <p>Only pay once the work is done to your satisfaction, at transparent flat rates.</p>
+            </div>
+        </div>
     </div>
 
     <div style="padding: 50px 20px; text-align: center; max-width: 1100px; margin: 0 auto;">
@@ -550,15 +652,64 @@
         </div>
     </div>
 
-    <footer style="background: #ffffff; color: #475569; padding: 40px 20px; text-align: center; margin-top: 80px; border-top: 1px solid #e2e8f0;">
-        <h3 style="color: #0f172a; margin-bottom: 10px;">Need Help? Contact Us</h3>
-        <p>For any complaints or support, reach out to our team:</p>
-        <div style="margin: 20px 0; line-height: 2;">
-            <p>📞 <strong>Helpline 1:</strong> +91 82790 82569</p>
-            <p>📞 <strong>Helpline 2:</strong> +91 92562 90755</p>
-            <p>📧 <strong>Email:</strong> domvexindia@gmail.com</p>
+    <!-- FAQ SECTION -->
+    <div style="padding: 30px 20px 50px 20px; max-width: 900px; margin: 0 auto;">
+        <h3 style="margin-bottom: 25px; font-size: 24px; color: #0f172a; text-align: center;">Frequently Asked Questions</h3>
+        <div class="faq-wrap">
+            <details class="faq-item">
+                <summary>How fast will a professional arrive?</summary>
+                <p>In most areas, our verified professionals reach your doorstep within 2 hours of booking. For scheduled bookings, you can pick any convenient time slot.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Is there a warranty on the service?</summary>
+                <p>Yes. Every service comes with a 10-day warranty. If the same issue reoccurs within 10 days, we fix it again completely free of cost.</p>
+            </details>
+            <details class="faq-item">
+                <summary>When do I need to pay?</summary>
+                <p>You only pay after the service is completed to your satisfaction. Pricing is flat and transparent — no hidden charges.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Are the professionals background verified?</summary>
+                <p>Yes, every professional on Domvex goes through identity verification and background checks before being onboarded onto the platform.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Can I cancel or reschedule my booking?</summary>
+                <p>Yes, you can cancel or reschedule your booking from your dashboard before the professional is assigned, at no extra cost.</p>
+            </details>
         </div>
-        <p style="font-size: 12px; margin-top: 20px;">&copy; 2026 Domvex India. All rights reserved. | Developed by Domvex Team</p>
+    </div>
+
+    <!-- ===== NEW PREMIUM FOOTER ===== -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Domvex</h4>
+                <p>Verified, premium home services at your doorstep — trusted by thousands of customers across India.</p>
+                <div class="footer-social">
+                    <a href="#" title="Facebook">📘</a>
+                    <a href="#" title="Instagram">📷</a>
+                    <a href="#" title="Twitter/X">🐦</a>
+                    <a href="#" title="YouTube">▶️</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="about.html">About Us</a>
+                <a href="rates.html">Service Rates</a>
+                <a href="terms.html">Terms & Policies</a>
+                <a href="javascript:void(0)" onclick="alert('Helpline 1: +91 82790 82569 \nHelpline 2: +91 92562 90755 \nEmail: domvexindia@gmail.com')">Help & Support</a>
+            </div>
+            <div class="footer-col">
+                <h4>For Professionals</h4>
+                <a href="javascript:void(0)" onclick="openModal('workerModal')">Join as Partner</a>
+                <a href="dashboard.html">Partner Dashboard</a>
+                <a href="worker_earning.html">Earnings</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 Domvex India. All rights reserved.</span>
+            <span>Developed by Domvex Team</span>
+        </div>
     </footer>
 
    <div id="customerModal" class="modal-overlay">
@@ -568,11 +719,8 @@
                 <h3>Welcome Back</h3>
                 <form id="customerLoginForm">
                     <div class="form-group">
-                        <label>Mobile Number</label>
-                        <div class="phone-input-group">
-                            <span class="phone-prefix">+91</span>
-                            <input type="tel" id="custLogPhone" placeholder="Enter 10 digit number" required>
-                        </div>
+                        <label>Email Address</label>
+                        <input type="email" id="custLogEmail" placeholder="Enter your email" required>
                     </div>
                     <div class="form-group">
                         <label>Password</label>
@@ -580,6 +728,7 @@
                             <input type="password" id="custLogPass" placeholder="Enter password" required>
                             <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custLogPass', this)">👁️</button>
                         </div>
+                        <span class="forgot-pass-text" onclick="forgotPassword()">Forgot Password?</span>
                     </div>
                     <button type="submit" class="submit-btn cust-submit">Secure Login</button>
                     <span class="toggle-form-text" onclick="toggleCustForm(true)">New to Domvex? Create Customer Account</span>
@@ -597,9 +746,13 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="custSignEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
                         <label>Password</label>
                         <div class="pass-field-wrap">
-                            <input type="password" id="custSignPass" placeholder="Enter password" required>
+                            <input type="password" id="custSignPass" placeholder="Enter password (min 6 characters)" required minlength="6">
                             <button type="button" class="pass-toggle-btn" onclick="toggleCustPass('custSignPass', this)">👁️</button>
                         </div>
                     </div>
@@ -629,6 +782,10 @@
                             <input type="tel" id="workerPhoneInput" placeholder="10 digit number" required>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="upper-label">Email Address</label>
+                    <input type="email" id="workerEmailInput" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
                     <label class="upper-label">Profile Photo</label>
@@ -700,7 +857,7 @@
                 <div class="form-group">
                     <label class="upper-label">Set Login Password</label>
                     <div style="display: flex;">
-                        <input type="password" id="workerPassInput" placeholder="Create a strong password" required>
+                        <input type="password" id="workerPassInput" placeholder="Create a strong password (min 6 characters)" required minlength="6">
                         <button type="button" onclick="togglePass()" style="width: auto; margin-left: 5px;">👁️</button>
                     </div>
                 </div>
@@ -712,16 +869,13 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="config.js"></script>
 
 <script src="script.js"></script>
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        const database = firebase.database();
-
-        window.onload = function() {
+       
+        window.addEventListener('load', function() {
             const custName = localStorage.getItem('customerName');
             const workerPhone = localStorage.getItem('workerPhone');
             const navButtons = document.getElementById('navAuthButtons');
@@ -736,7 +890,47 @@
                 hambBtn.style.display = 'flex';
                 loadWorkerMenu();
             }
-        };
+
+            // Auto-detect location on page load
+            detectLocation();
+        });
+
+        // Location Auto-Detect - uses browser's free GPS + free OpenStreetMap reverse geocoding
+        // No paid API used. Falls back to "Jaipur" (our current service city) if detection fails
+        // or permission is denied.
+        function detectLocation() {
+            const locationText = document.getElementById('locationText');
+            const cached = localStorage.getItem('selectedCity');
+            if (cached) { locationText.innerText = cached; }
+
+            if (!navigator.geolocation) {
+                locationText.innerText = 'Jaipur';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const addr = data.address || {};
+                            const city = addr.city || addr.town || addr.suburb || addr.county || 'Jaipur';
+                            locationText.innerText = city;
+                            localStorage.setItem('selectedCity', city);
+                        })
+                        .catch(() => {
+                            locationText.innerText = 'Jaipur';
+                        });
+                },
+                () => {
+                    // Permission denied or error - default to our service city
+                    locationText.innerText = 'Jaipur';
+                },
+                { timeout: 8000 }
+            );
+        }
 
         // Customer hamburger menu (original content, kept as-is)
         function loadCustomerMenu() {
@@ -775,32 +969,71 @@
             });
         }
 
+        // ===== CUSTOMER LOGIN (Firebase Email/Password Auth - FREE, unlimited) =====
         document.getElementById('customerLoginForm').onsubmit = function(e) {
             e.preventDefault();
-            const phone = document.getElementById('custLogPhone').value;
+            const email = document.getElementById('custLogEmail').value;
             const pass = document.getElementById('custLogPass').value;
-            database.ref('customers/' + phone).once('value', (s) => {
-                if (s.exists() && s.val().password === pass) {
-                    localStorage.setItem('customerName', s.val().name);
-                    localStorage.setItem('customerPhone', phone);
-                   closeModal('customerModal');
-                    document.getElementById('navAuthButtons').style.display = 'none';
-                    document.getElementById('hambBtn').style.display = 'flex';
-                    loadCustomerMenu();
-                } else { alert('Invalid credentials!'); }
-            });
+
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    const uid = userCredential.user.uid;
+                    database.ref('customers/' + uid).once('value', (s) => {
+                        if (s.exists()) {
+                            localStorage.setItem('customerName', s.val().name);
+                            localStorage.setItem('customerPhone', s.val().phone);
+                            localStorage.setItem('customerEmail', s.val().email);
+                            localStorage.setItem('customerUID', uid);
+                            closeModal('customerModal');
+                            document.getElementById('navAuthButtons').style.display = 'none';
+                            document.getElementById('hambBtn').style.display = 'flex';
+                            loadCustomerMenu();
+                        } else {
+                            alert('Account data not found. Please contact support.');
+                        }
+                    });
+                })
+                .catch((error) => {
+                    alert('Login failed: ' + error.message);
+                });
         };
 
+        // ===== CUSTOMER SIGNUP (Firebase Email/Password Auth - FREE, unlimited) =====
         document.getElementById('customerSignupForm').onsubmit = function(e) {
             e.preventDefault();
             const n = document.getElementById('custSignName').value;
             const p = document.getElementById('custSignPhone').value;
+            const email = document.getElementById('custSignEmail').value;
             const pw = document.getElementById('custSignPass').value;
-            database.ref('customers/' + p).set({ name: n, password: pw }, () => {
-                alert('Registered! Please login.');
-                toggleCustForm(false);
-            });
+
+            firebase.auth().createUserWithEmailAndPassword(email, pw)
+                .then((userCredential) => {
+                    const uid = userCredential.user.uid;
+                    database.ref('customers/' + uid).set({ name: n, phone: p, email: email }, () => {
+                        alert('Registered! Please login.');
+                        toggleCustForm(false);
+                    });
+                })
+                .catch((error) => {
+                    alert('Registration failed: ' + error.message);
+                });
         };
+
+        // ===== FORGOT PASSWORD (Firebase built-in - FREE) =====
+        function forgotPassword() {
+            const email = document.getElementById('custLogEmail').value;
+            if (!email) {
+                alert('Pehle apna email address login form mein daalein, fir "Forgot Password" dabayein.');
+                return;
+            }
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => {
+                    alert('Password reset link aapke email pe bhej diya gaya hai. Inbox check karein.');
+                })
+                .catch((error) => {
+                    alert('Error: ' + error.message);
+                });
+        }
 
         function handleCategoryClick(category) {
             if (localStorage.getItem('customerName')) {
@@ -811,7 +1044,12 @@
             }
         }
 
-        function logout() { localStorage.clear(); location.reload(); }
+        function logout() {
+            firebase.auth().signOut().finally(() => {
+                localStorage.clear();
+                location.reload();
+            });
+        }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function toggleCustForm(isSignup) {
@@ -836,7 +1074,7 @@
         }
 
         async function uploadToImgBB(file) {
-            const API_KEY = "ba91c524e3a935ae5db3950a5cefeed2";
+            const API_KEY = imgbbKey;
             const formData = new FormData();
             formData.append("image", file);
             const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, { method: "POST", body: formData });
@@ -844,6 +1082,7 @@
             return result.data.url;
         }
 
+        // ===== WORKER SIGNUP (Firebase Email/Password Auth - FREE, unlimited) =====
         document.getElementById('workerForm').onsubmit = async function(e) {
             e.preventDefault();
             const submitBtn = document.querySelector('.work-submit');
@@ -855,9 +1094,18 @@
                 const aadhaarUrl = await uploadToImgBB(document.getElementById('workerAadhaarPhoto').files[0]);
                 const bankUrl = await uploadToImgBB(document.getElementById('workerBankPhoto').files[0]);
 
+                const email = document.getElementById('workerEmailInput').value;
+                const pass = document.getElementById('workerPassInput').value;
+
+                submitBtn.innerText = "Creating Account...";
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+                const uid = userCredential.user.uid;
+
                const workerData = {
+                    uid: uid,
                     name: document.getElementById('workerNameInput').value,
                     phone: document.getElementById('workerPhoneInput').value,
+                    email: email,
                     skill: document.getElementById('workerSkill').value,
                     experience: document.getElementById('workerExpInput').value,
                     aadhaar: document.getElementById('workerAadhaarInput').value,
@@ -866,13 +1114,12 @@
                     workerPhoto: workerUrl,
                     aadhaarPhoto: aadhaarUrl,
                     bankPhoto: bankUrl,
-                    password: document.getElementById('workerPassInput').value,
                     status: "PENDING"
                 };
                 localStorage.setItem('tempWorkerData', JSON.stringify(workerData));
                 window.location.href = 'terms.html';
             } catch (error) {
-                alert("Upload failed, please check internet.");
+                alert("Signup failed: " + error.message);
                 submitBtn.innerText = "Continue to Terms";
                 submitBtn.disabled = false;
             }

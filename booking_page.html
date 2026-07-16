@@ -105,13 +105,14 @@
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="config.js"></script>
-
 <script src="script.js"></script>
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", authDomain: "domvex-45097.firebaseapp.com", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/", projectId: "domvex-45097", storageBucket: "domvex-45097.firebasestorage.app", messagingSenderId: "317471334986", appId: "1:317471334986:web:c9f1a80e93ad1f13c93cb3" };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-    const database = firebase.database();
+    // NOTE: customer ki identity ab UID (Firebase Auth) se hoti hai, phone number
+    // sirf display/contact ke liye. config.js/script.js pehle se firebase.initializeApp()
+    // aur `const database` set kar dete hain — yahan dobara declare nahi karna.
+    const uid = localStorage.getItem('customerUID');
 
     // 1. Cart se saari items uthana
     const cart = JSON.parse(localStorage.getItem('cartItems') || "[]");
@@ -134,13 +135,12 @@
     document.getElementById('custName').value = localStorage.getItem('customerName') || "";
     document.getElementById('custPhone').value = localStorage.getItem('customerPhone') || "";
 
-    // 3. Wallet balance fetch
-    const customerPhone = localStorage.getItem('customerPhone');
+    // 3. Wallet balance fetch — ab uid se, phone se nahi
     let walletBalance = 0;
     let useWallet = false;
 
-    if (customerPhone) {
-        database.ref('customers/' + customerPhone).once('value').then(snap => {
+    if (uid) {
+        database.ref('customers/' + uid).once('value').then(snap => {
             const data = snap.val() || {};
             walletBalance = data.walletBalance || 0;
             if (walletBalance > 0) {
@@ -171,43 +171,51 @@
     document.getElementById('bookingForm').onsubmit = function(e) {
         e.preventDefault();
 
+        if (!uid) {
+            alert('Please login first!');
+            window.location.href = 'index.html';
+            return;
+        }
+
         const walletDeduction = useWallet ? Math.min(walletBalance, total) : 0;
         const finalTotal = total - walletDeduction;
         const bookingId = "DMX" + Date.now();
 
         const newBooking = {
             bookingId: bookingId,
+            customerUID: uid,
             service: serviceNames.join(", "),
-            price: "₹" + finalTotal,
-            originalPrice: "₹" + total,
+            price: finalTotal,
+            originalPrice: total,
             name: document.getElementById('custName').value,
             customerName: document.getElementById('custName').value,
-            customerPhone: customerPhone || document.getElementById('custPhone').value,
+            customerPhone: document.getElementById('custPhone').value,
             address: document.getElementById('custAddress').value,
             phone: document.getElementById('custPhone').value,
             date: new Date().toLocaleDateString(),
+            timestamp: Date.now(),
             status: "Pending",
             walletUsed: walletDeduction
         };
 
-        // Firebase me save (admin panel ke liye)
+        // Firebase me save (admin panel, wallet aur customer dashboard sab ke liye)
         database.ref('bookings/' + bookingId).set(newBooking);
 
         // Wallet se paise kaate agar use kiya
-        if (customerPhone && walletDeduction > 0) {
-            database.ref('customers/' + customerPhone).update({
+        if (walletDeduction > 0) {
+            database.ref('customers/' + uid).update({
                 walletBalance: walletBalance - walletDeduction
             });
         }
 
         // Cashback logic: ₹800+ pe ₹50, sirf pehli 3 baar
-        if (customerPhone && total >= 800) {
-            database.ref('customers/' + customerPhone).once('value').then(snap => {
+        if (total >= 800) {
+            database.ref('customers/' + uid).once('value').then(snap => {
                 const data = snap.val() || {};
                 const cashbackCount = data.cashbackCount || 0;
                 if (cashbackCount < 3) {
                     const currentBalance = data.walletBalance !== undefined ? data.walletBalance : 0;
-                    database.ref('customers/' + customerPhone).update({
+                    database.ref('customers/' + uid).update({
                         walletBalance: currentBalance + 50,
                         cashbackCount: cashbackCount + 1
                     });
@@ -215,7 +223,7 @@
             });
         }
 
-        // Purana localStorage bhi rakha (customer_dashboard.html ke liye)
+        // Purana localStorage bhi rakha (kisi aur page ko chahiye ho to)
         let bookings = JSON.parse(localStorage.getItem('myBookings') || "[]");
         bookings.push(newBooking);
         localStorage.setItem('myBookings', JSON.stringify(bookings));

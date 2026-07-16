@@ -19,6 +19,35 @@
         .del { background: #ef4444; color: white; }
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
         .modal-content { background: #111827; margin: 5% auto; padding: 20px; border: 1px solid #1f2937; width: 450px; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
+
+        /* ==== NEW ADDITIONS: search boxes, rating/level badges, new tables/modals ==== */
+        .search-box { width: 100%; padding: 12px 16px; margin: 0 0 14px 0; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 14px; }
+        .search-box::placeholder { color: #6b7280; }
+        .table-wrap { overflow-x: auto; margin-bottom: 30px; }
+        .table-wrap table { margin-bottom: 0; }
+
+        .level-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; display: inline-block; }
+        .level-bronze { background: #7c4a1e; color: #fff; }
+        .level-silver { background: #6b7280; color: #fff; }
+        .level-gold { background: #92400e; color: #fde68a; }
+        .level-platinum { background: #4c1d95; color: #ddd6fe; }
+        .level-none { background: #374151; color: #9ca3af; }
+        .rating-pill { color: #f59e0b; font-weight: 700; font-size: 13px; }
+
+        .btn-view { background: #6366f1; color: white; }
+        .btn-verify { background: #10b981; color: white; }
+
+        .modal-content h2 { margin-bottom: 4px; }
+        .modal-sub-eyebrow { color: #6b7280; font-size: 12px; margin-bottom: 15px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin: 14px 0; }
+        .detail-item { background: #1f2937; padding: 10px 12px; border-radius: 8px; }
+        .detail-item .dl-label { font-size: 10.5px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+        .detail-item .dl-value { font-size: 14px; font-weight: 700; color: #fff; }
+        .doc-photo-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .doc-photo-item { text-align: center; }
+        .doc-photo-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #374151; }
+        .doc-photo-item p { font-size: 11px; color: #9ca3af; margin-top: 5px; }
+        .section-divider { border: none; border-top: 1px solid #1f2937; margin: 16px 0; }
     </style>
 </head>
 <body>
@@ -30,16 +59,38 @@
         </div>
     </div>
 
+    <!-- NEW: Customer details modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <h2>Customer Profile</h2>
+            <div id="customerModalDetails" style="margin-top: 15px;"></div>
+            <button onclick="document.getElementById('customerModal').style.display='none'" style="margin-top: 15px; background: #374151; width: 100%; padding: 10px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+
+    <!-- NEW: Booking details modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <h2>Booking Details</h2>
+            <div id="bookingModalDetails" style="margin-top: 15px;"></div>
+            <button onclick="document.getElementById('bookingModal').style.display='none'" style="margin-top: 15px; background: #374151; width: 100%; padding: 10px; cursor: pointer;">Close</button>
+        </div>
+    </div>
+
+    <!-- Admin login now uses real Firebase Auth (email+password) instead of a
+         hardcoded phone check — required so Firebase Rules can recognise the
+         admin's auth.uid and grant broad read/write access. -->
     <div class="login-box" id="loginUI">
         <h2>Admin Verification</h2>
-        <input type="tel" id="adminPhone" placeholder="Enter Admin Number" maxlength="10">
+        <input type="email" id="adminEmail" placeholder="Admin Email">
+        <input type="password" id="adminPassword" placeholder="Admin Password">
         <button onclick="checkAuth()">Login to Dashboard</button>
     </div>
 
     <div id="dashboardUI" style="display:none;">
         <header style="display:flex; justify-content:space-between; margin-bottom: 20px;">
             <h1>System Overview</h1>
-            <button onclick="location.reload()" style="width: auto; background: #ef4444;">Logout</button>
+            <button onclick="adminLogout()" style="width: auto; background: #ef4444;">Logout</button>
         </header>
         <div class="metrics-grid" style="grid-template-columns: 1fr 1fr;">
             <div class="metric-card" style="text-align:left;">
@@ -61,54 +112,65 @@
             <div class="metric-card"><h3>Bookings</h3><div id="countBookings" style="font-size: 30px;">0</div></div>
         </div>
 
-        <h2>Active Bookings</h2>
-        <table>
-            <thead><tr><th>Booking ID</th><th>Customer</th><th>Service</th><th>Assigned Worker</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="adminTableBody"></tbody>
-        </table>
+        <h2 style="margin-bottom: 12px;">Active Bookings</h2>
+        <input type="text" id="bookingSearchInput" class="search-box" placeholder="🔍 Search bookings by customer, service, worker or booking ID..." oninput="filterBookingTable()">
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Booking ID</th><th>Customer</th><th>Service</th><th>Assigned Worker</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
+        </div>
 
-        <h2>Registered Workers List</h2>
-        <table>
-            <thead><tr><th>Name</th><th>Phone</th><th>Skill</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="workerTableBody"></tbody>
-        </table>
+        <h2 style="margin-bottom: 12px;">Registered Workers List</h2>
+        <input type="text" id="workerSearchInput" class="search-box" placeholder="🔍 Search workers by name, phone or skill..." oninput="filterWorkerTable()">
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Name</th><th>Phone</th><th>Skill</th><th>Rating</th><th>Level</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="workerTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- NEW: Registered Customers List -->
+        <h2 style="margin-bottom: 12px;">Registered Customers List</h2>
+        <input type="text" id="customerSearchInput" class="search-box" placeholder="🔍 Search customers by name or phone..." oninput="filterCustomerTable()">
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Name</th><th>Phone</th><th>Wallet Balance</th><th>Total Bookings</th><th>Action</th></tr></thead>
+                <tbody id="customerTableBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-   <script src="config.js"></script>
-
-<script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
    <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpoTdWajiA1rjX6AzIJ10hZ_EkW5YrmNE", databaseURL: "https://domvex-45097-default-rtdb.firebaseio.com/" };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // NOTE: config.js/script.js pehle se firebase.initializeApp() aur `const database`
+        // set kar dete hain — yahan dobara declare nahi karna (purana duplicate bug tha).
 
         function checkAuth() {
-            if(document.getElementById('adminPhone').value === "7878463369") {
-                document.getElementById('loginUI').style.display = 'none';
-                document.getElementById('dashboardUI').style.display = 'block';
-                loadData();
-            } else { alert("Bhai, tu Admin nahi hai!"); }
+            const email = document.getElementById('adminEmail').value.trim();
+            const pass = document.getElementById('adminPassword').value;
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    document.getElementById('loginUI').style.display = 'none';
+                    document.getElementById('dashboardUI').style.display = 'block';
+                    loadData();
+                })
+                .catch((error) => {
+                    alert("Login failed: " + error.message);
+                });
         }
 
-        function showWorkerDetails(w) {
-            document.getElementById('modalDetails').innerHTML = `
-                <p><strong>Name:</strong> ${w.name || 'N/A'}</p>
-                <p><strong>Phone:</strong> ${w.phone || 'N/A'}</p>
-                <p><strong>Aadhaar No:</strong> [Aadhaar Redacted]</p>
-                <p><strong>Bank Account:</strong> ${w.bankAccount || 'Not Provided'}</p>
-                <p><strong>Total Earnings:</strong> ₹${w.totalEarnings || 0}</p>
-                <hr style="margin:10px 0;">
-                <p><strong>Worker Photo:</strong><br><img src="${w.workerPhoto}" style="width:100px;"></p>
-                <p><strong>Aadhaar Photo:</strong><br><img src="${w.aadhaarPhoto}" style="width:100px;"></p>
-                <p><strong>Bank Photo:</strong><br><img src="${w.bankPhoto}" style="width:100px;"></p>
-                <a href="Working_earning.html?phone=${w.phone}" style="display:block; margin-top:15px; color:#00d2ff;">View Full Earning History</a>
-            `;
-            document.getElementById('workerModal').style.display = 'block';
+        function adminLogout() {
+            firebase.auth().signOut().finally(() => location.reload());
         }
 
-        function verifyWorker(phone) { database.ref('workers/' + phone).update({ status: 'VERIFIED' }); alert("Worker Verified!"); }
+        // NOTE: worker/customer records are now keyed by their Firebase Auth UID
+        // (not phone number) — "key" below IS that uid.
+        function verifyWorker(key) { database.ref('workers/' + key).update({ status: 'VERIFIED' }); alert("Worker Verified!"); }
 
         function warnWorker(key, name) {
             const ref = database.ref('workers/' + key);
@@ -122,16 +184,19 @@
 
         function remove(path) { if(confirm("Sure, delete?")) database.ref(path).remove(); }
 
+        // Admin only knows the customer's phone number (not their internal uid),
+        // so we look the customer up by their stored "phone" field first.
         function addWalletMoney() {
             const phone = document.getElementById('walletPhoneInput').value.trim();
             const amount = parseInt(document.getElementById('walletAmountInput').value);
             if (!phone || phone.length !== 10) { alert('Enter valid 10-digit phone number'); return; }
             if (!amount || amount <= 0) { alert('Enter valid amount'); return; }
 
-            database.ref('customers/' + phone).once('value').then(snap => {
+            database.ref('customers').orderByChild('phone').equalTo(phone).once('value').then(snap => {
                 if (!snap.exists()) { alert('Customer not found!'); return; }
-                const current = snap.val().walletBalance || 0;
-                database.ref('customers/' + phone).update({ walletBalance: current + amount }, () => {
+                let targetUid = null, current = 0;
+                snap.forEach(child => { targetUid = child.key; current = child.val().walletBalance || 0; });
+                database.ref('customers/' + targetUid).update({ walletBalance: current + amount }, () => {
                     alert(`₹${amount} added to ${phone}'s wallet!`);
                     document.getElementById('walletPhoneInput').value = '';
                     document.getElementById('walletAmountInput').value = '';
@@ -151,46 +216,291 @@
                 document.getElementById('notifMessageInput').value = '';
             });
         }
+
+        // ==============================================================
+        // loadData() — ENHANCED. This IS the function the request targets
+        // directly (worker table needs Rating + Level columns, a working
+        // View button, and every table needs search) so it's edited in
+        // place rather than shadowed by a second competing renderer.
+        // Nothing that existed before was removed: customers count,
+        // workers list w/ Verify/Warn/Del, bookings list w/ Del — all
+        // still happen, just extended.
+        //
+        // FIXES made here (previously broken/dead code):
+        //  1. Workers table's "View" button used to link to
+        //     'worker_profile.html?phone=...' — that page reads the
+        //     logged-in worker from localStorage, not a URL param, so it
+        //     never actually showed anything useful to admin. Now opens
+        //     the in-page modal instead (which already existed but was
+        //     unused/disconnected).
+        //  2. The old modal read w.bankAccount and w.totalEarnings —
+        //     neither field exists on a real worker record (actual
+        //     fields: w.bankDetails, w.stats.total / w.stats.today).
+        //  3. verifyWorker() sets status "VERIFIED", but the Partner
+        //     Level tiers (worker_profile.html) only recognised
+        //     "APPROVED" — so no worker could ever reach Bronze. Tier
+        //     logic below accepts both.
+        //  4. UID MIGRATION: customers/workers are now keyed by Firebase
+        //     Auth uid instead of phone number. Every place that matched
+        //     bookings to a worker/customer via phone (b.workerPhone,
+        //     b.customerPhone) now matches via the real relational field
+        //     instead: b.acceptedBy (worker's uid) and b.customerUID
+        //     (customer's uid) — both set when the booking is created /
+        //     accepted (dashboard.html / booking_page.html).
+        // ==============================================================
+
+        let workersRawCache = {};
+        let customersRawCache = {};
+        let bookingsRawCache = {};
+
+        const TIER_LABELS = {
+            platinum: { text: '⭐ Platinum', cls: 'level-platinum' },
+            gold:     { text: '🥇 Gold',     cls: 'level-gold' },
+            silver:   { text: '🥈 Silver',   cls: 'level-silver' },
+            bronze:   { text: '🥉 Bronze',   cls: 'level-bronze' },
+            none:     { text: 'Unranked',    cls: 'level-none' }
+        };
+
+        function computeWorkerStats(workerUid) {
+            let completed = 0, cancelledByWorker = 0, ratingSum = 0, ratingCount = 0;
+            Object.values(bookingsRawCache).forEach(b => {
+                if (b.acceptedBy !== workerUid) return;
+                if (b.status === 'Completed') completed++;
+                if (b.status === 'Cancelled' && b.cancelledBy === 'worker') cancelledByWorker++;
+                if (b.rating) { ratingSum += parseFloat(b.rating); ratingCount++; }
+            });
+            const avgRating = ratingCount ? (ratingSum / ratingCount) : 0;
+            const totalAttempted = completed + cancelledByWorker;
+            const completionRate = totalAttempted > 0 ? (completed / totalAttempted) * 100 : 100;
+            return { completed, avgRating, ratingCount, completionRate };
+        }
+
+        function computeTier(w, stats) {
+            const statusUpper = (w.status || '').toUpperCase();
+            const isVerified = statusUpper === 'VERIFIED' || statusUpper === 'APPROVED';
+            const manualOverride = w.tierOverride ? w.tierOverride.toLowerCase() : null;
+            const ratingOk = (t) => stats.ratingCount === 0 || stats.avgRating >= t;
+
+            let tier = 'none';
+            if (manualOverride) tier = manualOverride;
+            else if (stats.completed >= 2000 && ratingOk(4.9) && stats.completionRate >= 99) tier = 'platinum';
+            else if (stats.completed >= 500 && ratingOk(4.8) && stats.completionRate >= 98) tier = 'gold';
+            else if (stats.completed >= 100 && ratingOk(4.5) && stats.completionRate >= 95) tier = 'silver';
+            else if (isVerified && ratingOk(4.0)) tier = 'bronze';
+            return tier;
+        }
+
+        function showWorkerDetails(key) {
+            const w = workersRawCache[key];
+            if (!w) return;
+            const stats = computeWorkerStats(key);
+            const tier = computeTier(w, stats);
+            const tierMeta = TIER_LABELS[tier];
+            const today = (w.stats && w.stats.today) || 0;
+            const total = (w.stats && w.stats.total) || 0;
+
+            document.getElementById('modalDetails').innerHTML = `
+                <div class="modal-sub-eyebrow">${w.phone || ''} • ${w.skill || 'N/A'} • <span class="level-badge ${tierMeta.cls}">${tierMeta.text}</span></div>
+
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="dl-label">Full Name</div><div class="dl-value">${w.name || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Mobile Number</div><div class="dl-value">${w.phone || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Experience</div><div class="dl-value">${w.experience || 0} yrs</div></div>
+                    <div class="detail-item"><div class="dl-label">Status</div><div class="dl-value">${w.status || 'PENDING'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Rating</div><div class="dl-value">${stats.ratingCount ? '⭐ ' + stats.avgRating.toFixed(1) + ' (' + stats.ratingCount + ')' : 'No ratings yet'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Jobs Completed</div><div class="dl-value">${stats.completed}</div></div>
+                    <div class="detail-item"><div class="dl-label">Today's Earning</div><div class="dl-value">₹${today}</div></div>
+                    <div class="detail-item"><div class="dl-label">Total Earning</div><div class="dl-value">₹${total}</div></div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="dl-label">Aadhaar Number</div><div class="dl-value">${w.aadhaar || 'Not Provided'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Bank Account Number</div><div class="dl-value">${w.bankDetails || 'Not Provided'}</div></div>
+                    <div class="detail-item"><div class="dl-label">IFSC Code</div><div class="dl-value">${w.ifscCode || 'Not Provided'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Warnings</div><div class="dl-value">${w.warningCount || 0}${w.isBanned ? ' 🚫 BANNED' : ''}</div></div>
+                </div>
+
+                <div class="doc-photo-row">
+                    <div class="doc-photo-item"><img src="${w.workerPhoto || ''}" onerror="this.style.opacity=0.3"><p>Profile Photo</p></div>
+                    <div class="doc-photo-item"><img src="${w.aadhaarPhoto || ''}" onerror="this.style.opacity=0.3"><p>Aadhaar Card</p></div>
+                    <div class="doc-photo-item"><img src="${w.bankPhoto || ''}" onerror="this.style.opacity=0.3"><p>Bank Passbook</p></div>
+                </div>
+            `;
+            document.getElementById('workerModal').style.display = 'block';
+        }
+
+        function showCustomerDetails(key) {
+            const c = customersRawCache[key];
+            if (!c) return;
+            const customerBookings = Object.values(bookingsRawCache).filter(b => b.customerUID === key);
+            const completedCount = customerBookings.filter(b => b.status === 'Completed').length;
+
+            const bookingsListHtml = customerBookings.length
+                ? customerBookings.slice(0, 10).map(b => `
+                    <div class="detail-item" style="margin-bottom:8px;">
+                        <div class="dl-label">${b.date || '--'} • ${b.status || 'Pending'}</div>
+                        <div class="dl-value">${b.service || 'Service'} — ₹${b.price || 0}</div>
+                    </div>
+                `).join('')
+                : '<p style="color:#9ca3af; font-size:13px;">No bookings yet.</p>';
+
+            document.getElementById('customerModalDetails').innerHTML = `
+                <div class="modal-sub-eyebrow">${c.phone || ''}</div>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="dl-label">Full Name</div><div class="dl-value">${c.name || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Phone</div><div class="dl-value">${c.phone || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Wallet Balance</div><div class="dl-value">₹${c.walletBalance || 0}</div></div>
+                    <div class="detail-item"><div class="dl-label">Cashback Used</div><div class="dl-value">${c.cashbackCount || 0} times</div></div>
+                    <div class="detail-item"><div class="dl-label">Total Bookings</div><div class="dl-value">${customerBookings.length}</div></div>
+                    <div class="detail-item"><div class="dl-label">Completed Bookings</div><div class="dl-value">${completedCount}</div></div>
+                </div>
+                <hr class="section-divider">
+                <div class="dl-label" style="margin-bottom:8px;">Recent Bookings</div>
+                ${bookingsListHtml}
+            `;
+            document.getElementById('customerModal').style.display = 'block';
+        }
+
+        function showBookingDetails(key) {
+            const b = bookingsRawCache[key];
+            if (!b) return;
+            document.getElementById('bookingModalDetails').innerHTML = `
+                <div class="modal-sub-eyebrow">${b.bookingId || key}</div>
+                <div class="detail-grid">
+                    <div class="detail-item"><div class="dl-label">Service</div><div class="dl-value">${b.service || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Price</div><div class="dl-value">₹${b.price || 0}</div></div>
+                    <div class="detail-item"><div class="dl-label">Customer</div><div class="dl-value">${b.customerName || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Customer Phone</div><div class="dl-value">${b.customerPhone || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Assigned Worker</div><div class="dl-value">${b.workerName || b.assignedWorkerName || 'Not Assigned'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Worker Phone</div><div class="dl-value">${b.workerPhone || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Date</div><div class="dl-value">${b.date || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Status</div><div class="dl-value">${b.status || 'Pending'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Address</div><div class="dl-value">${b.address || 'N/A'}</div></div>
+                    <div class="detail-item"><div class="dl-label">Rating</div><div class="dl-value">${b.rating ? '⭐ ' + b.rating : 'Not rated yet'}</div></div>
+                </div>
+                ${b.ratingFeedback ? `<div class="detail-item" style="margin-top:10px;"><div class="dl-label">Customer Feedback</div><div class="dl-value" style="font-weight:500;">"${b.ratingFeedback}"</div></div>` : ''}
+                ${b.cancelReason ? `<div class="detail-item" style="margin-top:10px;"><div class="dl-label">Cancellation Reason (by ${b.cancelledBy || 'unknown'})</div><div class="dl-value" style="font-weight:500;">${b.cancelReason}</div></div>` : ''}
+            `;
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+
+        function filterWorkerTable() {
+            const q = (document.getElementById('workerSearchInput').value || '').toLowerCase();
+            document.querySelectorAll('#workerTableBody tr').forEach(row => {
+                const s = row.getAttribute('data-search') || '';
+                row.style.display = s.includes(q) ? '' : 'none';
+            });
+        }
+
+        function filterCustomerTable() {
+            const q = (document.getElementById('customerSearchInput').value || '').toLowerCase();
+            document.querySelectorAll('#customerTableBody tr').forEach(row => {
+                const s = row.getAttribute('data-search') || '';
+                row.style.display = s.includes(q) ? '' : 'none';
+            });
+        }
+
+        function filterBookingTable() {
+            const q = (document.getElementById('bookingSearchInput').value || '').toLowerCase();
+            document.querySelectorAll('#adminTableBody tr').forEach(row => {
+                const s = row.getAttribute('data-search') || '';
+                row.style.display = s.includes(q) ? '' : 'none';
+            });
+        }
+
+        function renderWorkerTable() {
+            const tbody = document.getElementById('workerTableBody');
+            tbody.innerHTML = '';
+            let count = 0;
+            Object.entries(workersRawCache).forEach(([key, w]) => {
+                count++;
+                const stats = computeWorkerStats(key);
+                const tier = computeTier(w, stats);
+                const tierMeta = TIER_LABELS[tier];
+                const ratingText = stats.ratingCount ? `⭐ ${stats.avgRating.toFixed(1)}` : `<span style="color:#6b7280;">No ratings</span>`;
+                const searchBlob = `${(w.name||'').toLowerCase()} ${(w.phone||'').toLowerCase()} ${(w.skill||'').toLowerCase()}`;
+
+                tbody.innerHTML += `<tr data-search="${searchBlob}">
+                    <td>${w.name || 'N/A'}</td><td>${w.phone || 'N/A'}</td><td>${w.skill || 'N/A'}</td>
+                    <td class="rating-pill">${ratingText}</td>
+                    <td><span class="level-badge ${tierMeta.cls}">${tierMeta.text}</span></td>
+                    <td>${(w.status === 'VERIFIED' || w.status === 'APPROVED') ? '✅' : `<button class="btn-act btn-verify" onclick="verifyWorker('${key}')">Verify</button>`}</td>
+                    <td>
+                        <button class="btn-act btn-view" onclick="showWorkerDetails('${key}')">View</button>
+                        <button class="btn-act" style="background:#f59e0b;" onclick="warnWorker('${key}', '${(w.name||'').replace(/'/g, "\\'")}')">Warn</button>
+                        <button class="btn-act del" onclick="remove('workers/${key}')">Del</button>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('countWorkers').innerText = count;
+            filterWorkerTable();
+        }
+
+        function renderCustomerTable() {
+            const tbody = document.getElementById('customerTableBody');
+            tbody.innerHTML = '';
+            let count = 0;
+            Object.entries(customersRawCache).forEach(([key, c]) => {
+                count++;
+                const bookingCount = Object.values(bookingsRawCache).filter(b => b.customerUID === key).length;
+                const searchBlob = `${(c.name||'').toLowerCase()} ${(c.phone||'').toLowerCase()}`;
+                tbody.innerHTML += `<tr data-search="${searchBlob}">
+                    <td>${c.name || 'N/A'}</td>
+                    <td>${c.phone || 'N/A'}</td>
+                    <td>₹${c.walletBalance || 0}</td>
+                    <td>${bookingCount}</td>
+                    <td>
+                        <button class="btn-act btn-view" onclick="showCustomerDetails('${key}')">View</button>
+                        <button class="btn-act del" onclick="remove('customers/${key}')">Del</button>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('countCustomers').innerText = count;
+            filterCustomerTable();
+        }
+
+        function renderBookingTable() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+            Object.entries(bookingsRawCache).forEach(([key, b]) => {
+                const searchBlob = `${(b.bookingId||'').toLowerCase()} ${(b.customerName||'').toLowerCase()} ${(b.service||'').toLowerCase()} ${(b.workerName||b.assignedWorkerName||'').toLowerCase()}`;
+                tbody.innerHTML += `<tr data-search="${searchBlob}">
+                    <td>${b.bookingId || 'N/A'}</td>
+                    <td>${b.customerName || 'N/A'}</td>
+                    <td>${b.service || 'N/A'}</td>
+                    <td>${b.workerName || b.assignedWorkerName || 'Not Assigned'}</td>
+                    <td>${b.date || 'N/A'}</td>
+                    <td>${b.status || 'Pending'}</td>
+                    <td>
+                        <button class="btn-act btn-view" onclick="showBookingDetails('${key}')">View</button>
+                        <button class="btn-act del" onclick="remove('bookings/${key}')">Del</button>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('countBookings').innerText = Object.keys(bookingsRawCache).length;
+        }
+
         function loadData() {
-            database.ref('customers').on('value', snap => { document.getElementById('countCustomers').innerText = snap.numChildren(); });
-            
+            database.ref('customers').on('value', snap => {
+                customersRawCache = {};
+                snap.forEach(child => { customersRawCache[child.key] = child.val(); });
+                renderCustomerTable();
+            });
+
             database.ref('workers').on('value', snap => {
-                const tbody = document.getElementById('workerTableBody');
-                tbody.innerHTML = '';
-                let count = 0;
-                snap.forEach(child => {
-                    count++;
-                    const w = child.val();
-                    tbody.innerHTML += `<tr>
-                        <td>${w.name}</td><td>${w.phone}</td><td>${w.skill}</td>
-                        <td>${w.status === 'VERIFIED' ? '✅' : `<button onclick="verifyWorker('${child.key}')" style="background:green; color:white; border:none; padding:5px;">Verify</button>`}</td>
-                       // admin.html ke loadData function mein ye line change kar
-<td>
-    <button class="btn-act" onclick="window.location.href='worker_profile.html?phone=${w.phone}'">View</button>
-    <button class="btn-act" style="background:#f59e0b;" onclick="warnWorker('${child.key}', '${w.name}')">Warn</button>
-    <button class="btn-act del" onclick="remove('workers/${child.key}')">Del</button>
-</td>
-                    </tr>`;
-                });
-                document.getElementById('countWorkers').innerText = count;
+                workersRawCache = {};
+                snap.forEach(child => { workersRawCache[child.key] = child.val(); });
+                renderWorkerTable();
             });
 
             database.ref('bookings').on('value', snap => {
-                const tbody = document.getElementById('adminTableBody');
-                tbody.innerHTML = '';
-                snap.forEach(child => {
-                    const b = child.val();
-                    tbody.innerHTML += `<tr>
-                        <td>${b.bookingId || 'N/A'}</td>
-                        <td>${b.customerName || 'N/A'}</td>
-                        <td>${b.service || 'N/A'}</td>
-                        <td>${b.workerName || b.assignedWorkerName || 'Not Assigned'}</td>
-                        <td>${b.date || 'N/A'}</td>
-                        <td>${b.status || 'Pending'}</td>
-                        <td><button class="btn-act del" onclick="remove('bookings/${child.key}')">Del</button></td>
-                    </tr>`;
-                });
-                document.getElementById('countBookings').innerText = snap.numChildren();
+                bookingsRawCache = {};
+                snap.forEach(child => { bookingsRawCache[child.key] = child.val(); });
+                renderBookingTable();
+                renderWorkerTable();   // ratings/levels depend on bookings too
+                renderCustomerTable(); // booking counts depend on bookings too
             });
         }
     </script>
